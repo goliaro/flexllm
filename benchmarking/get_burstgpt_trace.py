@@ -308,7 +308,7 @@ def save_trace(df, qps, filepath):
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build BurstGPT (ShareGPT) trace")
-    parser.add_argument("--model_name", type=str, default="meta-llama/Llama-3.1-70B-Instruct", help="Model name")
+    parser.add_argument("--model_name", type=str, default="meta-llama/Llama-3.1-8B-Instruct", help="Model name")
     parser.add_argument("-m", "--max-length", type=int, default=8192, help="Maximum prompt + response length")
     parser.add_argument("-s", "--seed", type=int, default=42, help="Random seed")
     parser.add_argument("-d", "--duration", type=int, default=10, help="Slice duration in minutes")
@@ -319,13 +319,12 @@ if __name__ == "__main__":
     # Change directory to that holding this script
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-    model_subfolder = "8B" 
-    if "mistral" in args.model_name.lower():
-        model_subfolder = "mistral"
-    elif "qwen" in args.model_name.lower() and "instruct" in args.model_name.lower():
-        model_subfolder = "qwen_instruct"
-    elif "70b" in args.model_name.lower():
-        model_subfolder = "70B"
+    model_subfolder = "unknown"
+    if "qwen" in args.model_name.lower():
+        model_subfolder = "qwen"
+    elif "llama" in args.model_name.lower():
+        model_subfolder = "llama"
+
     output_folder = os.path.join(args.output_folder, model_subfolder)
     os.makedirs(output_folder, exist_ok=True)
 

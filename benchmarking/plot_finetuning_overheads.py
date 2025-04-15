@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-expected_fwd_tokens = [0, 1024, 2048, 3072, 4096]
+expected_fwd_tokens = [0,128,256,384,512]
 expected_bwd_layers = [0, 8, 16, 24, 32]
 
 def get_run_idx(max_tokens_per_batch, num_fwd_finetuning_tokens, num_bwd_layers):
@@ -34,7 +34,7 @@ def get_req_guids(max_tokens_per_batch, num_fwd_finetuning_tokens, num_bwd_layer
 
 
 
-def plot_fwd_overhead(filepath, model_name, tp_degree, bz, num_tokens_per_batch, ft_bwd_tokens):
+def plot_fwd_overhead(filepath, model_name, tp_degree, bz, num_tokens_per_batch):
     # Load the CSV file
     df = pd.read_csv(filepath)
 
@@ -76,8 +76,8 @@ def plot_fwd_overhead(filepath, model_name, tp_degree, bz, num_tokens_per_batch,
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
-
-    plt.savefig(f'./plots/overhead_test/fwd_overhead.pdf', bbox_inches='tight')
+    model_name_ = model_name.replace("/", "_").lower()
+    plt.savefig(f'./plots/overhead_test/fwd_overhead_{model_name_}.pdf', bbox_inches='tight')
     
 
 def plot_bwd_overhead(filepath, model_name, tp_degree, bz, num_tokens_per_batch, ft_bwd_tokens):
@@ -121,7 +121,8 @@ def plot_bwd_overhead(filepath, model_name, tp_degree, bz, num_tokens_per_batch,
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
 
-    plt.savefig(f'./plots/overhead_test/bwd_overhead.pdf', bbox_inches='tight')
+    model_name_ = model_name.replace("/", "_").lower()
+    plt.savefig(f'./plots/overhead_test/bwd_overhead_{model_name_}.pdf', bbox_inches='tight')
     
 
 if __name__ == "__main__":
@@ -134,15 +135,22 @@ if __name__ == "__main__":
     # Make plots directory if it doesn't exist
     if not os.path.exists('./plots/overhead_test'):
         os.makedirs('./plots/overhead_test')
+    model_names=[
+        "meta-llama/Llama-3.1-8B-Instruct",
+        "Qwen/Qwen2.5-14B-Instruct",
+        "Qwen/Qwen2.5-32B-Instruct"
+    ]
+    model_names_=[model_name.replace("/", "_").lower() for model_name in model_names]
+    tp_degrees = [1,2,4]
 
-    model_name="meta-llama/Llama-3.1-8B-Instruct"
-    model_name_=model_name.replace("/", "_").lower()
-    tp_degree=1
     ft_bwd_tokens=4096
     bz=256
-    tokens_per_batch=256
+    tokens_per_batch=1024
 
-    fp_step=f"/global/homes/g/goliaro/flexllm/benchmarking/output/overhead_test/8B/profiling/step_profiling_overhead_test_{model_name_}_tensor_parallelism_1_max_requests_per_batch_256_max_tokens_per_batch_4352_num_kv_cache_slots_40000_qps_0.000000_num_warmup_requests_10.csv"
-    fp_req=f"/global/homes/g/goliaro/flexllm/benchmarking/output/overhead_test/8B/profiling/inference_request_profiling_overhead_test_{model_name_}_tensor_parallelism_1_max_requests_per_batch_256_max_tokens_per_batch_4352_num_kv_cache_slots_40000_qps_0.000000_num_warmup_requests_10.csv"
-    plot_fwd_overhead(fp_step, model_name, tp_degree, bz, tokens_per_batch, ft_bwd_tokens)
-    plot_bwd_overhead(fp_step, model_name, tp_degree, bz, tokens_per_batch, ft_bwd_tokens)
+    for i, model_name in enumerate(model_names):
+        tp_degree = tp_degrees[i]
+        model_name_ = model_names_[i]
+        fp_step=f"/global/homes/g/goliaro/flexllm/benchmarking/output/overhead_test/profiling/step_profiling_overhead_test_{model_name_}_tensor_parallelism_{tp_degree}_max_requests_per_batch_{bz}_max_tokens_per_batch_{tokens_per_batch}_num_kv_cache_slots_60000_qps_0.000000_num_warmup_requests_10.csv"
+        fp_req=f"/global/homes/g/goliaro/flexllm/benchmarking/output/overhead_test/profiling/inference_request_profiling_overhead_test_{model_name_}_tensor_parallelism_{tp_degree}_max_requests_per_batch_{bz}_max_tokens_per_batch_{tokens_per_batch}_num_kv_cache_slots_60000_qps_0.000000_num_warmup_requests_10.csv"
+        plot_fwd_overhead(fp_step, model_name, tp_degree, bz, tokens_per_batch)
+        plot_bwd_overhead(fp_step, model_name, tp_degree, bz, tokens_per_batch, ft_bwd_tokens)

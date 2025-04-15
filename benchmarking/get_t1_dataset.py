@@ -56,21 +56,25 @@ def main(model_name, num_entries, max_length, seed, output_folder):
     # Extract the original text field from the filtered examples.
     text_list = filtered_dataset["text"]
 
+    is_qwen = "qwen" in model_name.lower()
+    is_llama = "llama" in model_name.lower()
+    model_suffix = "_qwen" if is_qwen else "_llama" if is_llama else ""
+
     # Save the text list to a JSON file.
-    flexllm_output_file=os.path.join(output_folder, "t1.json")
+    flexllm_output_file=os.path.join(output_folder, f"t1{model_suffix}.json")
     with open(flexllm_output_file, "w") as f:
         json.dump(text_list, f, indent=2)
     
     # drop the "text column"
     filtered_dataset = filtered_dataset.remove_columns("text").remove_columns("token_count")
     llama_factory_output_folder = os.path.abspath("../LLaMA-Factory/data")
-    llama_factory_output_file=os.path.join(llama_factory_output_folder, "t1_flexllm.json")
+    llama_factory_output_file=os.path.join(llama_factory_output_folder, f"t1_flexllm{model_suffix}.json")
     with open(llama_factory_output_file, "w") as f:
         json.dump(list(filtered_dataset), f, indent=2)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build T1 training trace")
-    parser.add_argument("--model_name", type=str, default="meta-llama/Llama-3.1-70B-Instruct", help="Model name")
+    parser.add_argument("--model_name", type=str, default="meta-llama/Llama-3.1-8B-Instruct", help="Model name")
     parser.add_argument("-n", "--num_entries", type=int, default=1000, help="Number of entries")
     parser.add_argument("-s", "--seed", type=int, default=0, help="Random seed")
     parser.add_argument("-m", "--max-length", type=int, default=8192, help="Max dataset size")
