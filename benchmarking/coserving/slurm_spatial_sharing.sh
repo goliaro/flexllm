@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=64
 #SBATCH --mem=200G
 #SBATCH --constraint gpu,ss11,a100,hbm80g
-#SBATCH --time=00:30:00
+#SBATCH --time=02:00:00
 #SBATCH --job-name=e2e_spatial_sharing
 #SBATCH --job-name=flexflow_peft
 #SBATCH --output=/global/homes/g/goliaro/flexllm/benchmarking/output/e2e/slurm/%x_%A_%a.out
