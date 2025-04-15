@@ -5,28 +5,28 @@ set -e
 cd "${BASH_SOURCE[0]%/*}/../../flexflow-serve/build"
 source ./set_python_envs.sh
 
-MODEL_NAME="meta-llama/Llama-3.1-8B-Instruct"
+MODEL_NAME="Qwen/Qwen2.5-14B-Instruct"
 PEFT_MODEL_NAME="${MODEL_NAME}-lora"
-TP_DEGREE=1
+TP_DEGREE=2
 ZSIZE=40000
 trace=sharegpt
 
 QPS_vals=(
-  # 5.0
+  5.0
   # 4.0
   # 3.0
   # 2.0
-  1.0
+#   1.0
 )
 PEFT_SUPPORT_MODES=(
-  # "COSERVING"
-  # "TEMPORAL_SHARING"
+  "COSERVING"
+  "TEMPORAL_SHARING"
   "SPATIAL_SHARING"
 )
-NUM_BWD_LAYERS=2
-NGPUS=1
+NUM_BWD_LAYERS=3
+NGPUS=2
 NCPUS=16
-FSIZE=77000
+FSIZE=77500
 CSIZE=4096
 MAX_SEQ_LEN=8192
 NUM_KV_CACHE_SLOTS=80000
@@ -37,9 +37,9 @@ MAX_TRAINING_EPOCHS=10000
 GRADIENT_ACCUMULATION_STEPS=8
 FT_LOGGING_STEPS=100
 
-OUTPUT_FOLDER="../../benchmarking/output/coserving/flexllm/8B"
-TRACES_FOLDER="../../benchmarking/traces/burstgpt/llama"
-FINETUNING_DATASET="t1_llama"
+OUTPUT_FOLDER="../../benchmarking/output/coserving/flexllm/14B"
+TRACES_FOLDER="../../benchmarking/traces/burstgpt/qwen"
+FINETUNING_DATASET="t1_qwen"
 FINETUNING_DATASET_FILE="${TRACES_FOLDER}/../../${FINETUNING_DATASET}.json"
 
 mkdir -p $OUTPUT_FOLDER/output
