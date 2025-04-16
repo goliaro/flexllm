@@ -338,7 +338,7 @@ if __name__ == "__main__":
 
     df_scaled = scale_arrival_rate_fixed_duration(df_slice, target_rate_sec=args.qps)
     df_scaled2 = add_sharegpt_prompts_and_responses(df_scaled, tokenizer, args.max_length, seed=args.seed, apply_chat_template=False)
-    plot_histogram(df_scaled2, filepath=os.path.join(output_folder, f"sharegpt_{args.max_length}_{args.qps:.2}_qps_req.png"))
-    plot_histogram(df_scaled2, filepath=os.path.join(output_folder, f"sharegpt_{args.max_length}_{args.qps:.2}_qps_thr.png"), tokens=True)
+    plot_histogram(df_scaled2, filepath=os.path.join(output_folder, f"sharegpt_{args.max_length}_{args.qps:.1f}_qps_req.png"))
+    plot_histogram(df_scaled2, filepath=os.path.join(output_folder, f"sharegpt_{args.max_length}_{args.qps:.1f}_qps_thr.png"), tokens=True)
     
-    save_trace(df_scaled2, qps=args.qps, filepath=os.path.join(output_folder, f"sharegpt_{args.max_length}_{args.qps:.2}_qps.json"))
+    save_trace(df_scaled2, qps=args.qps, filepath=os.path.join(output_folder, f"sharegpt_{args.max_length}_{args.qps:.1f}_qps.json"))

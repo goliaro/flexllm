@@ -108,7 +108,7 @@ def load_trace(dataset_path: str, max_num_requests: int):
     requests = [SampleRequest(
         prompt=entry["prompt"], 
         prompt_len=entry["prompt_length"], 
-        expected_output_len=entry["response_length"],
+        expected_output_len=max(entry["response_length"],2),
         arrival_time=entry["arrival_time"],
     ) for entry in dataset]
     return requests
@@ -279,11 +279,12 @@ async def benchmark(
         raise ValueError(f"Unknown backend: {backend}")
 
     print("Starting initial single prompt test run...")
-    test_prompt, test_prompt_len, test_output_len, test_mm_content = \
+    test_prompt, test_prompt_len, test_output_len, test_arrival_time = \
         input_requests[0].prompt, input_requests[0].prompt_len, \
         input_requests[0].expected_output_len, \
-            input_requests[0].multi_modal_data
+            input_requests[0].arrival_time
 
+    test_mm_content=None
     if backend != "openai-chat" and test_mm_content is not None:
         # multi-modal benchmark is only available on OpenAI Chat backend.
         raise ValueError(
@@ -358,10 +359,10 @@ async def benchmark(
 
     benchmark_start_time = time.perf_counter()
     tasks: list[asyncio.Task] = []
-    async for request in get_request(input_requests, request_rate, burstiness):
-        prompt, prompt_len, output_len, mm_content = request.prompt, \
+    async for request in get_request(input_requests):
+        prompt, prompt_len, output_len, arrival_time = request.prompt, \
             request.prompt_len, request.expected_output_len, \
-                request.multi_modal_data
+                request.arrival_time
         req_model_id, req_model_name = model_id, model_name
         if lora_modules:
             req_lora_module = next(lora_modules)
@@ -374,7 +375,7 @@ async def benchmark(
                                               prompt_len=prompt_len,
                                               output_len=output_len,
                                               logprobs=logprobs,
-                                              multi_modal_content=mm_content,
+                                              multi_modal_content=None,
                                               ignore_eos=ignore_eos)
         tasks.append(
             asyncio.create_task(
@@ -720,7 +721,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--num-prompts",
         type=int,
-        default=1000,
+        default=5000,
         help="Number of prompts to process.",
     )
     parser.add_argument(

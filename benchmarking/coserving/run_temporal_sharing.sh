@@ -51,7 +51,7 @@ BATCH_SIZE=256
 MAX_TOKENS_PER_BATCH=256
 MAX_TRAINING_EPOCHS=10000
 GRADIENT_ACCUMULATION_STEPS=8
-FT_LOGGING_STEPS=100
+FT_LOGGING_STEPS=10
 trace=sharegpt
 
 PEFT_SUPPORT_MODE="TEMPORAL_SHARING"
@@ -106,7 +106,7 @@ for i in "${!MODEL_NAMES[@]}"; do
             --max-tokens-per-batch $MAX_TOKENS_PER_BATCH \
             --max-sequence-length $MAX_SEQ_LEN \
             --num-kv-cache-slots $NUM_KV_CACHE_SLOTS \
-            --ignore-eos --warmup --log-instance-creation \
+            --ignore-eos --log-instance-creation \
             2>&1 | tee $LOG_FILE
     done
 done

@@ -1,3 +1,4 @@
+#!/bin/bash
 set -x
 set -e
 
@@ -106,7 +107,9 @@ for i in "${!MODEL_NAMES[@]}"; do
             --max-tokens-per-batch $MAX_TOKENS_PER_BATCH \
             --max-sequence-length $MAX_SEQ_LEN \
             --num-kv-cache-slots $NUM_KV_CACHE_SLOTS \
-            --ignore-eos --warmup --log-instance-creation \
+            --ignore-eos --log-instance-creation \
             2>&1 | tee $LOG_FILE
+        
+        sleep 5
     done
 done

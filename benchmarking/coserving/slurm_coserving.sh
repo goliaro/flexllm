@@ -9,7 +9,6 @@
 #SBATCH --constraint gpu,ss11,a100,hbm80g
 #SBATCH --time=00:30:00
 #SBATCH --job-name=e2e_coserving
-#SBATCH --job-name=flexflow_peft
 #SBATCH --output=/global/homes/g/goliaro/flexllm/benchmarking/output/e2e/slurm/%x_%A_%a.out
 #SBATCH --error=/global/homes/g/goliaro/flexllm/benchmarking/output/e2e/slurm/%x_%A_%a.err
 #SBATCH --array=0-14

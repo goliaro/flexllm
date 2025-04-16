@@ -21,20 +21,27 @@ TP_DEGREES=(
   2
   4
 )
+NUM_DECODING_TOKENS_vals=(
+  16
+  32
+  64
+)
 
 NCPUS=16
 FSIZE=77000
 ZSIZE=80000
 CSIZE=4096
 MAX_SEQ_LEN=8192
-MAX_REQUESTS_PER_BATCH=256
-MAX_TOKENS_PER_BATCH=1024
+MAX_TOKENS_PER_BATCH=512
 NUM_KV_CACHE_SLOTS=60000
 
-MAX_FINETUNING_FWD_TOKENS=(
-    "0,128,256,384,512"
+MAX_FINETUNING_FWD_TOKENS_vals=(
+    "0,16,32,48,64",
+    "0,32,64,96,128",
+    "0,64,128,192,256"
+
 )
-MAX_FINETUNING_BWD_LAYERS="0,8,16,24,32"
+MAX_FINETUNING_BWD_LAYERS="0,1,2,3,4"
 
 OUTPUT_FOLDER="../../benchmarking/output/overhead_test"
 mkdir -p $OUTPUT_FOLDER/output
@@ -53,12 +60,14 @@ export LEGION_BACKTRACE=1
 # export CUDA_VISIBLE_DEVICES=1,2,3,4
 
 for i in "${!MODEL_NAMES[@]}"; do
-    MODEL_NAME=${MODEL_NAMES[$i]}
-    NGPUS=${TP_DEGREES[$i]}
-    OUTPUT_FILE="${OUTPUT_FOLDER}/output/${MODEL_NAME//\//_}.json"
-    LOG_FILE="${OUTPUT_FOLDER}/logs/${MODEL_NAME//\//_}.log"
-    rm $LOG_FILE $OUTPUT_FILE || true
-
+  MODEL_NAME=${MODEL_NAMES[$i]}
+  NGPUS=${TP_DEGREES[$i]}
+  OUTPUT_FILE="${OUTPUT_FOLDER}/output/${MODEL_NAME//\//_}.json"
+  LOG_FILE="${OUTPUT_FOLDER}/logs/${MODEL_NAME//\//_}.log"
+  rm $LOG_FILE $OUTPUT_FILE || true
+  for j in "${!NUM_DECODING_TOKENS_vals[@]}"; do
+    MAX_FINETUNING_FWD_TOKENS=${MAX_FINETUNING_FWD_TOKENS_vals[$j]}
+    NUM_DECODING_TOKENS=${NUM_DECODING_TOKENS_vals[$j]}
     ./inference/flexllm/overhead_test \
         -ll:cpu $NCPUS -ll:gpu $NGPUS -ll:util $NCPUS \
         -ll:fsize $FSIZE -ll:zsize $ZSIZE \
@@ -67,11 +76,12 @@ for i in "${!MODEL_NAMES[@]}"; do
         -tensor-parallelism-degree $NGPUS \
         -output-file $OUTPUT_FILE \
         -profiling-folder "${OUTPUT_FOLDER}/profiling" \
-        --max-requests-per-batch $MAX_REQUESTS_PER_BATCH \
+        --max-requests-per-batch $NUM_DECODING_TOKENS \
         --max-tokens-per-batch $MAX_TOKENS_PER_BATCH \
         --max-sequence-length $MAX_SEQ_LEN \
         --max-fwd-finetuning-tokens $MAX_FINETUNING_FWD_TOKENS \
         --num-layers-per-finetuning-step $MAX_FINETUNING_BWD_LAYERS \
         --num-kv-cache-slots $NUM_KV_CACHE_SLOTS \
         2>&1 | tee $LOG_FILE
+  done
 done
