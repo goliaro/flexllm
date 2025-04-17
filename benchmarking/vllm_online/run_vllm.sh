@@ -10,31 +10,31 @@ export PYTHONPATH="$(realpath $PWD/../../vllm)"
 VLLM_V1=1
 EAGER_MODE=true
 MODEL_NAMES=(
-  # "meta-llama/Llama-3.1-8B-Instruct"
+  "meta-llama/Llama-3.1-8B-Instruct"
   "Qwen/Qwen2.5-14B-Instruct"
   "Qwen/Qwen2.5-32B-Instruct"
 )
 TP_DEGREES=(
-  # 1
+  1
   2
   4
 )
 model_types=(
-  # "llama"
+  "llama"
   "qwen"
   "qwen"
 )
 QPS_vals=(
-  # 10.0
-  # 8.0
-  # 6.0
-  # 4.0
+  10.0
+  8.0
+  6.0
+  4.0
   2.0
 )
 trace=sharegpt
 BATCH_SIZE=256
 MAX_TOKENS_PER_BATCH=256
-MAX_NUM_REQUESTS=500
+MAX_NUM_REQUESTS=5000
 MAX_SEQ_LEN=8192
 
 check_gpus() {
@@ -92,15 +92,15 @@ run_serving_tests() {
     return
   fi
 
-  # --max-num-seqs ${batch_size} \
-      # --max-num-batched-tokens ${max_num_batched_tokens} \
-      # --disable-log-stats \
-      # --disable-log-requests
   server_command="VLLM_USE_V1=${vllm_use_v1} python3 \
       -m vllm.entrypoints.openai.api_server \
       --model ${model_name} \
       --tensor-parallel-size ${tp_degree} \
       --enable-chunked-prefill \
+      --max-num-seqs ${batch_size} \
+      --max-num-batched-tokens ${max_num_batched_tokens} \
+      --disable-log-stats \
+      --disable-log-requests
       --swap-space 0"
   
   if [ "$eager_mode" = true ]; then

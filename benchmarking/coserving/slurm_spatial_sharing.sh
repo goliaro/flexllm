@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=64
 #SBATCH --mem=200G
 #SBATCH --constraint gpu,ss11,a100,hbm80g
-#SBATCH --time=02:00:00
+#SBATCH --time=01:00:00
 #SBATCH --job-name=e2e_spatial_sharing
 #SBATCH --output=/global/homes/g/goliaro/flexllm/benchmarking/output/e2e/slurm/%x_%A_%a.out
 #SBATCH --error=/global/homes/g/goliaro/flexllm/benchmarking/output/e2e/slurm/%x_%A_%a.err
@@ -66,8 +66,9 @@ export LEGION_BACKTRACE=1
 
 # --- Decode the SLURM array index ---
 # Total iterations = number of models (3) x number of QPS values (5) = 15.
+NUM_MODELS=3
 task_id=$SLURM_ARRAY_TASK_ID
-model_index=$(( task_id / 5 ))
+model_index=$(( (NUM_MODELS - 1) - ( task_id / 5 ) ))
 qps_index=$(( task_id % 5 ))
 
 MODEL_NAME=${MODEL_NAMES[$model_index]}

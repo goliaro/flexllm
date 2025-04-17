@@ -64,10 +64,10 @@ export LEGION_BACKTRACE=1
 # export TORCH_CPP_LOG_LEVEL=INFO
 # export CUDA_LAUNCH_BLOCKING=1
 
-# --- Decode the SLURM array index ---
-# Total iterations = number of models (3) x number of QPS values (5) = 15.
+# --- Decode the SLURM array index with inverted model order ---
+NUM_MODELS=3
 task_id=$SLURM_ARRAY_TASK_ID
-model_index=$(( task_id / 5 ))
+model_index=$(( (NUM_MODELS - 1) - ( task_id / 5 ) ))
 qps_index=$(( task_id % 5 ))
 
 MODEL_NAME=${MODEL_NAMES[$model_index]}
@@ -110,5 +110,5 @@ echo "Running $MODEL_NAME (tp=$NGPUS) on $trace with BZ=$BATCH_SIZE, TOKENS_PER_
     --max-tokens-per-batch "$MAX_TOKENS_PER_BATCH" \
     --max-sequence-length "$MAX_SEQ_LEN" \
     --num-kv-cache-slots "$NUM_KV_CACHE_SLOTS" \
-    --ignore-eos--log-instance-creation \
+    --ignore-eos --log-instance-creation \
     2>&1 | tee "$LOG_FILE"
