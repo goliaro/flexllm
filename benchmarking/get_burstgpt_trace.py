@@ -166,6 +166,7 @@ def plot_histogram(df_hist, filepath, bin_width=5, tokens=False):
         max_time: Maximum x-axis limit (if None, will use max timestamp in data)
     """
     # Calculate the actual duration from the data
+    print(df_hist.describe())
     max_time = df_hist['Timestamp'].max()
     # Define the bin width and create bin edges
     bins = np.arange(0, max_time + bin_width, bin_width)
@@ -177,7 +178,6 @@ def plot_histogram(df_hist, filepath, bin_width=5, tokens=False):
     token_sums, _ = np.histogram(df_hist['Timestamp'], bins=bins, weights=df_hist['response_len'])
     # Compute the token arrival rate in tokens/s by dividing by the bin width (5s)
     token_rate = token_sums / bin_width
-
 
     if tokens:
         y_axis = token_rate
@@ -191,15 +191,40 @@ def plot_histogram(df_hist, filepath, bin_width=5, tokens=False):
 
     duration_minutes = max_time / 60
     measured_req_rate = len(df_hist) / df_hist['Timestamp'].max()
-    title = f'Requested throughput over {duration_minutes:.1f} minutes (averaged over {bin_width}-s intervals)\nRequest rate: {measured_req_rate:.2f} req/s'
+    mean_prompt_len = df_hist['prompt_len'].mean()
+    max_prompt_len = df_hist['prompt_len'].max()
+    mean_response_len = df_hist['response_len'].mean()
+    max_response_len = df_hist['response_len'].max()
+    max_total_length = (df_hist['prompt_len'] + df_hist['response_len']).max()
+    title = (
+        f"Requested throughput over {duration_minutes:.1f} minutes with {len(df_hist)} total requests\n"
+        f"(averaged over {bin_width}-s intervals)\n"
+        f"Request rate: {measured_req_rate:.1f} req/s\n"
+        f"Prompt: μ={mean_prompt_len:.0f}, max={max_prompt_len} - "
+        f"Response: μ={mean_response_len:.0f}, max={max_response_len} - "
+        f"Total: max={max_total_length}"
+    )
+    
     # Plotting
     plt.figure(figsize=(10, 5))
-    plt.plot(bin_centers, y_axis, marker='o', linestyle='-')
+    plt.plot(bin_centers, y_axis, marker='o', linestyle='-', label='Arrival rate')
+    
+    # If enough entries, add vertical lines at the timestamps of the 2048th and 5000th requests.
+    if len(df_hist) >= 2048:
+        sorted_df = df_hist.sort_values('Timestamp').reset_index(drop=True)
+        timestamp_2048 = sorted_df.iloc[2047]['Timestamp']
+        plt.axvline(x=timestamp_2048, color='red', linestyle='--', label='2048th request')
+    if len(df_hist) >= 5000:
+        sorted_df = df_hist.sort_values('Timestamp').reset_index(drop=True)
+        timestamp_5000 = sorted_df.iloc[4999]['Timestamp']
+        plt.axvline(x=timestamp_5000, color='green', linestyle='--', label='5000th request')
+    
     plt.xlabel('Time (s)')
     plt.ylabel(y_label)
     plt.title(title)
     plt.xlim(0, max_time)
     plt.grid(True)
+    plt.legend()
     plt.savefig(filepath)
     plt.close()  # Close the figure to free memory
 

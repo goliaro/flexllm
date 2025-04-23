@@ -54,9 +54,9 @@ GRADIENT_ACCUMULATION_STEPS=8
 FT_LOGGING_STEPS=10
 trace=sharegpt
 
-PEFT_SUPPORT_MODE="SPATIAL_SHARING"
+PEFT_SUPPORT_MODE="SPATIAL_SHARING_LIMITED"
 
-OUTPUT_FOLDER="../../benchmarking/output/e2e/spatial_sharing"
+OUTPUT_FOLDER="../../benchmarking/output/e2e/spatial_sharing_limited"
 TRACES_FOLDER="../../benchmarking/traces/burstgpt"
 
 mkdir -p $OUTPUT_FOLDER/output
@@ -108,5 +108,7 @@ for i in "${!MODEL_NAMES[@]}"; do
             --num-kv-cache-slots $NUM_KV_CACHE_SLOTS \
             --ignore-eos --log-instance-creation \
             2>&1 | tee $LOG_FILE
+        
+        sleep 5
     done
 done

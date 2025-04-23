@@ -8,39 +8,39 @@ source ./set_python_envs.sh
 
 MODEL_NAMES=(
   "meta-llama/Llama-3.1-8B-Instruct"
-  # "Qwen/Qwen2.5-14B-Instruct"
-  # "Qwen/Qwen2.5-32B-Instruct"
+  "Qwen/Qwen2.5-14B-Instruct"
+  "Qwen/Qwen2.5-32B-Instruct"
 )
 TP_DEGREES=(
   1
-  # 2
-  # 4
+  2
+  4
 )
 ZSIZES=(
   40000
-  # 40000
-  # 70000
+  40000
+  70000
 )
 NUM_BWD_LAYERS_vals=(
   1
-  # 1
-  # 1
+  1
+  1
 )
 NUM_KV_CACHE_SLOTS_vals=(
   70000
-  # 70000
-  # 60000
+  70000
+  60000
 )
 model_types=(
   "llama"
-  # "qwen"
-  # "qwen"
+  "qwen"
+  "qwen"
 )
 QPS_vals=(
-  # 5.0
-  # 4.0
-  # 3.0
-  # 2.0
+  5.0
+  4.0
+  3.0
+  2.0
   1.0
 )
 NCPUS=16

@@ -21,7 +21,7 @@ ZSIZES=(
   70000
 )
 NUM_BWD_LAYERS_vals=(
-  2
+  1
   1
   1
 )
