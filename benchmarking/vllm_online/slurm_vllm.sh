@@ -9,10 +9,10 @@
 #SBATCH --constraint gpu,ss11,a100,hbm80g
 #SBATCH --time=01:00:00
 #SBATCH --job-name=vllm_bench
-#SBATCH --output=/global/homes/g/goliaro/flexllm/benchmarking/output/e2e/slurm/%x_%A_%a.out
-#SBATCH --error=/global/homes/g/goliaro/flexllm/benchmarking/output/e2e/slurm/%x_%A_%a.err
+#SBATCH --output=/global/homes/g/goliaro/flexllm/benchmarking/output/vllm/slurm/%x_%A_%a.out
+#SBATCH --error=/global/homes/g/goliaro/flexllm/benchmarking/output/vllm/slurm/%x_%A_%a.err
 #SBATCH --time=00:45:00
-#SBATCH --array=0-14
+#SBATCH --array=0-5
 
 set -x
 set -o pipefail
@@ -37,7 +37,7 @@ declare -a MODEL_NAMES=(
 )
 declare -a TP_DEGREES=(1 2 4)
 declare -a model_types=("llama" "qwen" "qwen")
-declare -a QPS_vals=(20.0 16.0 12.0)
+declare -a QPS_vals=(5.3 6.7)
 trace=sharegpt
 BATCH_SIZE=256
 MAX_TOKENS_PER_BATCH=256

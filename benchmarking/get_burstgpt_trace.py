@@ -166,7 +166,7 @@ def plot_histogram(df_hist, filepath, bin_width=5, tokens=False):
         max_time: Maximum x-axis limit (if None, will use max timestamp in data)
     """
     # Calculate the actual duration from the data
-    print(df_hist.describe())
+    # print(df_hist.describe())
     max_time = df_hist['Timestamp'].max()
     # Define the bin width and create bin edges
     bins = np.arange(0, max_time + bin_width, bin_width)
@@ -198,7 +198,7 @@ def plot_histogram(df_hist, filepath, bin_width=5, tokens=False):
     max_total_length = (df_hist['prompt_len'] + df_hist['response_len']).max()
     title = (
         f"Requested throughput over {duration_minutes:.1f} minutes with {len(df_hist)} total requests\n"
-        f"(averaged over {bin_width}-s intervals)\n"
+        f"(averaged over {bin_width}-s intervals) - "
         f"Request rate: {measured_req_rate:.1f} req/s\n"
         f"Prompt: μ={mean_prompt_len:.0f}, max={max_prompt_len} - "
         f"Response: μ={mean_response_len:.0f}, max={max_response_len} - "
