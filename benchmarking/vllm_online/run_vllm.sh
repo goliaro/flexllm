@@ -5,7 +5,7 @@ set -o pipefail
 
 # Cd into directory holding this script
 cd "${BASH_SOURCE[0]%/*}"
-# export PYTHONPATH="$(realpath $PWD/../../vllm)"
+export PYTHONPATH_="$(realpath $PWD/../../vllm)"
 
 VLLM_V1=1
 EAGER_MODE=true
@@ -145,7 +145,7 @@ run_serving_tests() {
   result_filename=$(echo "results_${trace}_$( [ "$eager_mode" = true ] && echo "eager_" )$( [ "$vllm_use_v1" = 1 ] && echo "v1_" )${model_name//\//_}_bz_${batch_size}_max_num_batched_tokens_${max_num_batched_tokens}_${qps}_qps_.json" | tr '[:upper:]' '[:lower:]')
 
   # Build the client command with the result_filename variable.
-  client_command="VLLM_USE_V1=${vllm_use_v1} PYTHONPATH=${PYTHONPATH} python3 benchmark_vllm.py \
+  client_command="VLLM_USE_V1=${vllm_use_v1} PYTHONPATH=${PYTHONPATH_} python3 benchmark_vllm.py \
         --model ${model_name} \
         --backend vllm \
         --ignore-eos \
