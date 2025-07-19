@@ -1,1 +1,3 @@
 matplotlib
+flash_attn==2.7.4.post1
+vllm==0.8.3
