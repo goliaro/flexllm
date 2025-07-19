@@ -167,7 +167,7 @@ main() {
             model_name="${MODEL_NAMES[$i]}"
             tp_degree="${TP_DEGREES[$i]}"
             MODEL_TYPE=${model_types[$i]}
-            trace_file="/global/homes/g/goliaro/flexllm/benchmarking/traces/burstgpt/${MODEL_TYPE}/${trace}_${MAX_SEQ_LEN}_${qps}_qps.json"
+            trace_file="../traces/burstgpt/${MODEL_TYPE}/${trace}_${MAX_SEQ_LEN}_${qps}_qps.json"
             # Check if the trace file exists
             if [ ! -f "$trace_file" ]; then
               echo "Error: Trace file $trace_file does not exist!"
