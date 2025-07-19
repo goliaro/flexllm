@@ -5,7 +5,7 @@ set -o pipefail
 
 # Cd into directory holding this script
 cd "${BASH_SOURCE[0]%/*}"
-export PYTHONPATH="$(realpath $PWD/../../vllm)"
+# export PYTHONPATH="$(realpath $PWD/../../vllm)"
 
 VLLM_V1=1
 EAGER_MODE=true
@@ -113,15 +113,13 @@ run_serving_tests() {
     return
   fi
 
-  server_command="VLLM_USE_V1=${vllm_use_v1} python3 \
-      -m vllm.entrypoints.openai.api_server \
-      --model ${model_name} \
+  server_command="VLLM_USE_V1=${vllm_use_v1} vllm serve \
       --tensor-parallel-size ${tp_degree} \
       --enable-chunked-prefill \
       --max-num-seqs ${batch_size} \
       --max-num-batched-tokens ${max_num_batched_tokens} \
       --disable-log-stats \
-      --disable-log-requests
+      --disable-log-requests \
       --swap-space 0"
   
   if [ "$eager_mode" = true ]; then
