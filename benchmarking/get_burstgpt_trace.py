@@ -15,6 +15,10 @@ from math import ceil
 from random import uniform
 import numpy as np
 
+import tempfile
+import time
+import fcntl
+
 SHAREGPT_URL = "https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered/resolve/main/ShareGPT_V3_unfiltered_cleaned_split.json"
 
 @dataclass
@@ -47,36 +51,68 @@ class Trace:
     metadata: TraceMetadata = field(default_factory=lambda: TraceMetadata(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "offline", 0.0))
 
 def download_and_cache_file(url: str, filename: Optional[str] = None):
-    """Read and cache a file from a url."""
+    """Read and cache a file from a url in a multi-process safe manner."""
     if filename is None:
         filename = os.path.join("/tmp", url.split("/")[-1])
 
-    # Check if the cache file already exists
-    if os.path.exists(filename):
-        return filename
+    # Create a lock file path
+    lock_filename = filename + ".lock"
+    
+    try:
+        # Try to acquire an exclusive lock
+        with open(lock_filename, 'w') as lock_file:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+            
+            # Check if file exists AFTER acquiring lock
+            # This ensures we don't see incomplete files from other processes
+            if os.path.exists(filename):
+                return filename
+            
+            print(f"Downloading from {url} to {filename}")
+            
+            # Create a temporary file to download to first
+            temp_filename = filename + ".tmp"
+            
+            try:
+                # Stream the response to show the progress bar
+                response = requests.get(url, stream=True)
+                response.raise_for_status()  # Check for request errors
 
-    print(f"Downloading from {url} to {filename}")
+                # Total size of the file in bytes
+                total_size = int(response.headers.get("content-length", 0))
+                chunk_size = 1024  # Download in chunks of 1KB
 
-    # Stream the response to show the progress bar
-    response = requests.get(url, stream=True)
-    response.raise_for_status()  # Check for request errors
+                # Use tqdm to display the progress bar
+                with open(temp_filename, "wb") as f, tqdm(
+                    desc=os.path.basename(filename),
+                    total=total_size,
+                    unit="B",
+                    unit_scale=True,
+                    unit_divisor=1024,
+                ) as bar:
+                    for chunk in response.iter_content(chunk_size=chunk_size):
+                        f.write(chunk)
+                        bar.update(len(chunk))
 
-    # Total size of the file in bytes
-    total_size = int(response.headers.get("content-length", 0))
-    chunk_size = 1024  # Download in chunks of 1KB
-
-    # Use tqdm to display the progress bar
-    with open(filename, "wb") as f, tqdm(
-        desc=filename,
-        total=total_size,
-        unit="B",
-        unit_scale=True,
-        unit_divisor=1024,
-    ) as bar:
-        for chunk in response.iter_content(chunk_size=chunk_size):
-            f.write(chunk)
-            bar.update(len(chunk))
-
+                # Atomically move the temp file to the final location
+                # This ensures the file appears complete or not at all
+                os.rename(temp_filename, filename)
+                
+            except Exception as e:
+                # Clean up temp file if download failed
+                if os.path.exists(temp_filename):
+                    os.remove(temp_filename)
+                raise e
+                
+            # File lock is automatically released when exiting the 'with' block
+            
+    finally:
+        # Clean up lock file
+        try:
+            os.remove(lock_filename)
+        except OSError:
+            pass  # Lock file might have been removed by another process
+    
     return filename
 
 def get_slice(df, slice_duration, seed):
@@ -229,12 +265,7 @@ def plot_histogram(df_hist, filepath, bin_width=5, tokens=False):
     plt.close()  # Close the figure to free memory
 
 def get_burstgpt_timestamps(slice_duration_sec, output_folder, seed):
-    dataset_path = os.path.join(output_folder, "..", "BurstGPT_without_fails_2.csv")
-    # if a file does not exist at the dataset path, download it from https://github.com/HPMLL/BurstGPT/releases/download/v1.1/BurstGPT_without_fails_2.csv
-    if not os.path.exists(dataset_path):
-        download_url = "https://github.com/HPMLL/BurstGPT/releases/download/v1.1/BurstGPT_without_fails_2.csv"
-        print(f"Downloading dataset from {download_url} to {dataset_path}...")
-        urllib.request.urlretrieve(download_url, dataset_path)
+    dataset_path = download_and_cache_file(url="https://github.com/HPMLL/BurstGPT/releases/download/v1.1/BurstGPT_without_fails_2.csv")
     df = pd.read_csv(dataset_path)
     df = df[df["Model"] == "ChatGPT"]
     # drop the columns "Model", "Request tokens", "Total tokens", "Log Type"

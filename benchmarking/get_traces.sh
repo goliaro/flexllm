@@ -30,6 +30,8 @@ for i in "${!MODEL_NAMES[@]}"; do
   for qps in "${QPS_vals[@]}"; do
     model_name="${MODEL_NAMES[$i]}"
     echo "Running trace generation for model: $model_name at QPS: $qps"
-    python get_burstgpt_trace.py --model_name "$model_name" --qps "$qps"
+    python get_burstgpt_trace.py --model_name "$model_name" --qps "$qps" & 
   done
 done
+
+wait
