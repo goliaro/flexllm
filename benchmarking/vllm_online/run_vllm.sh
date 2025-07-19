@@ -58,17 +58,24 @@ check_gpus() {
 }
 
 wait_for_server() {
-  # wait for vllm server to start
-  # return 1 if vllm server crashes
-  timeout 1200 bash -c '
-    until curl -X POST localhost:8000/v1/completions; do
-      sleep 10
-    done' && return 0 || return 1
+  local max_attempts=120  # 120 * 10 seconds = 1200 seconds
+  local attempt=0
+  
+  while [ $attempt -lt $max_attempts ]; do
+    if curl -s -X POST localhost:8000/v1/completions >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 10
+    ((attempt++))
+  done
+  return 1
 }
 
 kill_gpu_processes() {
   lsof -t -i:8000 | xargs -r kill -9
   pgrep python3 | xargs -r kill -9
+  pgrep python | xargs -r kill -9
+  pgrep vllm | xargs -r kill -9
 
 
   # wait until GPU memory usage smaller than 1GB
@@ -80,6 +87,13 @@ kill_gpu_processes() {
   rm -rf ~/.config/vllm
 
 }
+
+cleanup() {
+  echo "Script interrupted, cleaning up..."
+  kill_gpu_processes
+  exit 130
+}
+trap cleanup INT TERM
 
 run_serving_tests() {
   local model_name=${1}
