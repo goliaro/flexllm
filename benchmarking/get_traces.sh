@@ -8,7 +8,6 @@ cd "${BASH_SOURCE[0]%/*}"
 MODEL_NAMES=(
   "meta-llama/Llama-3.1-8B-Instruct"
   "Qwen/Qwen2.5-14B-Instruct"
-  "Qwen/Qwen2.5-32B-Instruct"
 )
 
 QPS_vals=(
@@ -28,9 +27,9 @@ QPS_vals=(
 trace=sharegpt
 
 for i in "${!MODEL_NAMES[@]}"; do
-    for qps in "${QPS_vals[@]}"; do
-        model_name="${MODEL_NAMES[$i]}"
-        echo "Running trace generation for model: $model_name at QPS: $qps"
-        python get_burstgpt_trace.py --model_name "$model_name" --qps "$qps"
-    done
+  for qps in "${QPS_vals[@]}"; do
+    model_name="${MODEL_NAMES[$i]}"
+    echo "Running trace generation for model: $model_name at QPS: $qps"
+    python get_burstgpt_trace.py --model_name "$model_name" --qps "$qps"
+  done
 done

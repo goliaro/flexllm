@@ -6,3 +6,4 @@
 3. Run `git clone -b flexllm-aec --recursive git@github.com:goliaro/flexllm.git`
 4. Run `cd flexllm; pip install -r requirements.txt`
 5. Run `huggingface-cli login --token <HF TOKEN>`
+6. `cd vllm; VLLM_USE_PRECOMPILED=1 pip install -e . --verbose`
