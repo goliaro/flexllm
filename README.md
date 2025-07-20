@@ -8,6 +8,8 @@
 4. Run `cd flexllm; pip install -r requirements.txt`
 5. Run `huggingface-cli login --token <HF TOKEN>`
 6. Run `./benchmarking/get_traces.sh`
+7. Run `cd flexflow-serve && mkdir build && cd build && ../config/config.linux && make -j && cd ..`
+8. Run `cd build && source set_python_envs.sh && cd .. && python inference/utils/download_hf_model.py --half-precision-only meta-llama/Llama-3.1-8B-Instruct Qwen/Qwen2.5-14B-Instruct Qwen/Qwen2.5-32B-Instruct`
 
 ## Experiments
 1. (~9h) Run the baseline experiments (LLaMAFactory + vLLM) with: `nohup bash -c './flexllm/benchmarking/finetuning/benchmark_llamafactory.sh && ./flexllm/benchmarking/vllm_online/run.sh' > output.log 2>&1 &`

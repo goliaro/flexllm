@@ -77,6 +77,16 @@ run_experiment() {
     # Remove any previous output or log file; ignore errors if the files don't exist
     rm "$OUTPUT_FILE" "$LOG_FILE" 2>/dev/null || true
 
+    # Check that the trace file and the finetuning dataset file exist
+    if [[ ! -f "$TRACE_FILE" ]]; then
+        echo "Trace file $TRACE_FILE does not exist. Skipping this experiment."
+        exit 1
+    fi
+    if [[ ! -f "$FINETUNING_DATASET_FILE" ]]; then
+        echo "Finetuning dataset file $FINETUNING_DATASET_FILE does not exist. Skipping this experiment."
+        exit 1
+    fi
+
     echo "========================================================================"
     echo "Running experiment $((model_index * 5 + qps_index + 1))/15"
     echo "Model: $MODEL_NAME (tp=$NGPUS)"

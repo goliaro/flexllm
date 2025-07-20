@@ -76,6 +76,16 @@ run_experiment() {
     OUTPUT_FILE="${OUTPUT_FOLDER}/output/${MODEL_NAME//\//_}_${trace}_bz_${BATCH_SIZE}_tokens_per_batch_${MAX_TOKENS_PER_BATCH}_kv_cache_slots_${NUM_KV_CACHE_SLOTS}_${qps}_qps_${PEFT_SUPPORT_MODE}.json"
     LOG_FILE="${OUTPUT_FOLDER}/logs/experiment_${experiment_num}_t${t_idx}_m${m_idx}_q${q_idx}.log"
 
+    # Check that the trace file and the finetuning dataset file exist
+    if [[ ! -f "$TRACE_FILE" ]]; then
+        echo "Trace file $TRACE_FILE does not exist. Skipping this experiment."
+        exit 1
+    fi
+    if [[ ! -f "$FINETUNING_DATASET_FILE" ]]; then
+        echo "Finetuning dataset file $FINETUNING_DATASET_FILE does not exist. Skipping this experiment."
+        exit 1
+    fi
+
     echo "========================================================================"
     echo "Running experiment ${experiment_num}/${combos}"
     echo "Temporal Sharing Frequency: $temporal_sharing_frequency"

@@ -11,6 +11,7 @@ MODEL_NAMES=(
 )
 
 QPS_vals=(
+  # VLLM/FlexLLM QPS values
   6.7 # 20/3
   5.3 # 16/3
   2.7 # 8/3
@@ -23,8 +24,15 @@ QPS_vals=(
   6.0
   4.0
   2.0
+  # FlexLLM QPS values
+  1.0
+  3.0
+  5.0
 )
 trace=sharegpt
+
+# Cleanup
+rm -rf ./traces
 
 for i in "${!MODEL_NAMES[@]}"; do
   for qps in "${QPS_vals[@]}"; do
