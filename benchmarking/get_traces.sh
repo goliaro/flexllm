@@ -29,9 +29,11 @@ trace=sharegpt
 for i in "${!MODEL_NAMES[@]}"; do
   for qps in "${QPS_vals[@]}"; do
     model_name="${MODEL_NAMES[$i]}"
-    echo "Running trace generation for model: $model_name at QPS: $qps"
+    echo "Running inference trace generation for model: $model_name at QPS: $qps"
     python get_burstgpt_trace.py --model_name "$model_name" --qps "$qps" & 
   done
+  echo "Running finetuning trace generation for model: $model_name"
+  python get_t1_dataset.py --model_name "${MODEL_NAMES[$i]}" &
 done
 
 wait

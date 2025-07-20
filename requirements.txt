@@ -1,3 +1,7 @@
 matplotlib
 flash_attn==2.7.4.post1
 vllm==0.8.3
+unsloth-zoo==2025.3.17
+unsloth==2025.3.19
+deepspeed==0.16.5
+-e LLaMA-Factory
