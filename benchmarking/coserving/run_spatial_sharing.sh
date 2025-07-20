@@ -131,8 +131,7 @@ echo ""
 
 start_time=$(date +%s)
 
-# Loop through all model indices in reverse order (as per original script logic)
-for model_index in $(seq $((${#MODEL_NAMES[@]} - 1)) -1 0); do
+for model_index in $(seq 0 $((${#MODEL_NAMES[@]} - 1))); do
     echo "Processing model: ${MODEL_NAMES[$model_index]} (index $model_index)"
     # Loop through all QPS indices for each model
     for qps_index in $(seq 0 $((${#QPS_vals[@]} - 1))); do
