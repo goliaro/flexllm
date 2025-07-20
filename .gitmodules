@@ -1,9 +1,6 @@
 [submodule "flexflow-serve"]
 	path = flexflow-serve
 	url = git@github.com:flexflow/flexflow-serve.git
-[submodule "vllm"]
-	path = vllm
-	url = git@github.com:vllm-project/vllm.git
 [submodule "LLaMA-Factory"]
 	path = LLaMA-Factory
 	url = git@github.com:goliaro/LLaMA-Factory.git
