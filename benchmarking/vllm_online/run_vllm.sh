@@ -112,7 +112,7 @@ run_serving_tests() {
     return
   fi
 
-  server_command="VLLM_USE_V1=${vllm_use_v1} vllm serve \
+  server_command="VLLM_USE_V1=${vllm_use_v1} vllm serve ${model_name} \
       --tensor-parallel-size ${tp_degree} \
       --enable-chunked-prefill \
       --max-num-seqs ${batch_size} \
