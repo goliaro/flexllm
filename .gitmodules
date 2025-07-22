@@ -1,6 +1,6 @@
 [submodule "flexflow-serve"]
 	path = flexflow-serve
-	url = git@github.com:flexflow/flexflow-serve.git
+	url = https://github.com/flexflow/flexflow-serve.git
 [submodule "LLaMA-Factory"]
 	path = LLaMA-Factory
-	url = git@github.com:goliaro/LLaMA-Factory.git
+	url = https://github.com/goliaro/LLaMA-Factory.git
