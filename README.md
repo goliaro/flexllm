@@ -2,18 +2,16 @@
 
 
 ## Preparation
-1. Run `cuda_version=12.4 python_version=3.12 ./docker/build.sh flexflow-environment`
-2. Run `cuda_version=12.4 python_version=3.12 ./docker/run.sh flexflow-environment`
-3. Run `git clone -b flexllm-aec --recursive git@github.com:goliaro/flexllm.git`
-4. Run `cd flexllm; pip install -r requirements.txt`
-5. Run `huggingface-cli login --token <HF TOKEN>`
-6. Run `./benchmarking/get_traces.sh`
-7. Run `cd flexflow-serve && mkdir build && cd build && ../config/config.linux && make -j && cd ..`
-8. Run `cd build && source set_python_envs.sh && cd .. && python inference/utils/download_hf_model.py --half-precision-only meta-llama/Llama-3.1-8B-Instruct Qwen/Qwen2.5-14B-Instruct Qwen/Qwen2.5-32B-Instruct`
+1. Run `./docker/build_container.sh`
+2. Run `./docker/start_container.sh`
+3. Run `./docker/setup_flexllm.sh`, providing your huggingface token when requested
+
+4. Run `./docker/attach_to_container.sh`
+5. Run `./docker/cleanup_containers.sh` after you are done
 
 ## Experiments
-1. (~9h) Run the baseline experiments (LLaMAFactory + vLLM) with: `nohup bash -c './flexllm/benchmarking/finetuning/benchmark_llamafactory.sh && ./flexllm/benchmarking/vllm_online/run.sh' > output.log 2>&1 &`
-2. 
+1. (~9h) Run the separate baseline experiments (LLaMAFactory + vLLM) with: `nohup bash -c './flexllm/benchmarking/finetuning/benchmark_llamafactory.sh && ./flexllm/benchmarking/vllm_online/run.sh' > output.log 2>&1 &`
+2. Run the spatial/temporal baseline experiments with: `nohup bash -c './flexllm/benchmarking/coserving/run_spatial_sharing.sh && ./flexllm/benchmarking/coserving/run_temporal_sharing.sh' > output.log 2>&1 &`
 
 ## Troubleshooting
 If you run into the issue below:
