@@ -53,6 +53,46 @@ export LEGION_BACKTRACE=1
 # export TORCH_CPP_LOG_LEVEL=INFO
 # export CUDA_LAUNCH_BLOCKING=1
 
+# Function to count entries in the last JSON of a file
+count_entries_in_last_json() {
+    local filename="$1"
+    
+    # Check if file exists
+    if [ ! -f "$filename" ]; then
+        echo "Error: File '$filename' not found" >&2
+        return 1
+    fi
+    
+    # Extract all complete JSON objects from the file
+    # This handles cases where JSONs might be on separate lines or concatenated
+    local json_objects=$(cat "$filename" | jq -c '.')
+    
+    # Count the number of JSON objects
+    local num_jsons=$(echo "$json_objects" | wc -l)
+    
+    if [ "$num_jsons" -eq 0 ]; then
+        echo "Error: No valid JSON found in file" >&2
+        return 1
+    fi
+    
+    # Get the last JSON object
+    local last_json=$(echo "$json_objects" | tail -n 1)
+    
+    # Count entries in the last JSON
+    # Assumes the JSON is an array or has a top-level array field
+    if echo "$last_json" | jq -e 'type == "array"' > /dev/null 2>&1; then
+        # JSON is directly an array
+        local count=$(echo "$last_json" | jq 'length')
+    else
+        # JSON is an object, look for array fields and use the first one found
+        # If you know the specific field name, replace this with: jq '.your_field_name | length'
+        local count=$(echo "$last_json" | jq '[.[] | select(type == "array")] | .[0] | length // 0')
+    fi
+    
+    echo "$count"
+    return 0
+}
+
 # Function to run a single experiment
 run_experiment() {
     local model_index=$1
@@ -74,8 +114,6 @@ run_experiment() {
     OUTPUT_FILE="${OUTPUT_FOLDER}/output/${MODEL_NAME//\//_}_${trace}_bz_${BATCH_SIZE}_tokens_per_batch_${MAX_TOKENS_PER_BATCH}_kv_cache_slots_${NUM_KV_CACHE_SLOTS}_${NUM_BWD_LAYERS}_bwd_layers_${qps}_qps_${PEFT_SUPPORT_MODE}.json"
     LOG_FILE="${OUTPUT_FOLDER}/logs/${MODEL_NAME//\//_}_${trace}_bz_${BATCH_SIZE}_tokens_per_batch_${MAX_TOKENS_PER_BATCH}_kv_cache_slots_${NUM_KV_CACHE_SLOTS}_${NUM_BWD_LAYERS}_bwd_layers_${qps}_qps_${PEFT_SUPPORT_MODE}.log"
 
-    # Remove any previous output or log file; ignore errors if the files don't exist
-    rm "$OUTPUT_FILE" "$LOG_FILE" 2>/dev/null || true
 
     # Check that the trace file and the finetuning dataset file exist
     if [[ ! -f "$TRACE_FILE" ]]; then
@@ -95,6 +133,22 @@ run_experiment() {
     echo "KV_CACHE_SLOTS=$NUM_KV_CACHE_SLOTS, NUM_BWD_LAYERS=$NUM_BWD_LAYERS"
     echo "QPS=$qps, PEFT_SUPPORT_MODE=$PEFT_SUPPORT_MODE"
     echo "========================================================================"
+
+    # Check if the output file already exists and has enough entries, in which case we skip the experiment
+    if [ -f "$OUTPUT_FILE" ]; then
+        # Use a subshell to avoid exiting the script on errors from count_entries_in_last_json
+        trace_entries=$(count_entries_in_last_json "$TRACE_FILE" 2>/dev/null)
+        output_entries=$(count_entries_in_last_json "$OUTPUT_FILE" 2>/dev/null)
+        
+        required_entries=$(( trace_entries / 2 ))
+        if [ "$output_entries" -ge "$required_entries" ]; then
+            echo "Skipping experiment ${experiment_num}: Output file $OUTPUT_FILE exists with sufficient entries ($output_entries >= $required_entries)."
+            echo ""
+            continue
+        else
+            echo "Rerunning experiment ${experiment_num}: Output file $OUTPUT_FILE exists but has insufficient entries ($output_entries < $required_entries)."
+        fi
+    fi
 
     # Execute the training/inference command
     ./inference/flexllm/peft_train \
