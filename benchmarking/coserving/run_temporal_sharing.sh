@@ -148,7 +148,7 @@ run_experiment() {
         if [ "$output_entries" -ge "$required_entries" ]; then
             echo "Skipping experiment ${experiment_num}: Output file $OUTPUT_FILE exists with sufficient entries ($output_entries >= $required_entries)."
             echo ""
-            continue
+            return
         else
             echo "Rerunning experiment ${experiment_num}: Output file $OUTPUT_FILE exists but has insufficient entries ($output_entries < $required_entries)."
         fi
