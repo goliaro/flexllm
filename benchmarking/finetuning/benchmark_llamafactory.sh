@@ -12,3 +12,6 @@ CUDA_VISIBLE_DEVICES=0 llamafactory-cli train examples/flexllm/t1_llama_8B.yaml
 CUDA_VISIBLE_DEVICES=0,1 llamafactory-cli train examples/flexllm/t1_qwen_14B.yaml
 # Multi GPU (4) QWEN-2.5 32B
 CUDA_VISIBLE_DEVICES=0,1,2,3 llamafactory-cli train examples/flexllm/t1_qwen_32B.yaml
+
+mkdir -p ../benchmarking/output/llama-factory
+cp -r ./saves/* ../benchmarking/output/llama-factory/
