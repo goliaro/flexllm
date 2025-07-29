@@ -8,6 +8,7 @@ To begin, please spin up a machine with the following characteristics:
 - CUDA 12.4
 - Docker support with NVIDIA container runtime
 - 500GB+ disk memory
+
 If you are using AWS, please create a `p4de.24xlarge` instance with the `Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.7 (Ubuntu 22.04)` AMI. If you do not have access to such a machine, let us know and we will start a machine for you.
 
 Once you have started the machine (or we started one for you), please connect to the machine via SSH. 
@@ -24,7 +25,7 @@ To start, please download the code with `git clone --recursive https://github.co
 ## Running the experiments
 To run all the experiments, launch the commands below one at a time within the Docker container. The commands use `nohup` to ensure that they will keep running if the SSH connection is broken. After launching a command, you can feel free to disconnect and come back later to check the progression. To check the progress (in real-time), you can run `tail -f <output_file>` (replace with `output1.log`, `output2.log` or `output3.log`) from the `/` folder in the container. If you are using a `tmux` terminal, you should avoid using `nohup` and instead use the tmux regular functionalities to run each script and check the output. 
 
-You can tell that each experiment has done when no additional output is being appended to the output file. In the last few lines, you should also be able to see a message that says: "All experiments completed!" or something similar. Before launching the next experiment, to be safe, please also check that the GPU memory utilization is at 0% (by running `nvidia-smi`).
+You can tell that each experiment has finished if no additional output is being appended to the output file. In the last few lines, you should also be able to see a message that says: "All experiments completed!" or something similar. Before launching the next experiment, to be safe, please also check that the GPU memory utilization is at 0% (by running `nvidia-smi`).
 1. Run the separate baseline experiments (LLaMAFactory + vLLM) with: `nohup bash -c './flexllm/benchmarking/finetuning/benchmark_llamafactory.sh && ./flexllm/benchmarking/vllm_online/run.sh' > output1.log 2>&1 &`
 2. Run the spatial/temporal baseline experiments with: `nohup bash -c './flexllm/benchmarking/coserving/run_spatial_sharing.sh && ./flexllm/benchmarking/coserving/run_temporal_sharing.sh' > output2.log 2>&1 &`
 3. Run the co-serving experiments with: `nohup ./flexllm/benchmarking/coserving/run_coserving.sh > output3.log 2>&1 &`
