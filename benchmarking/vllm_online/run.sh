@@ -188,6 +188,8 @@ main() {
         done
     done
 
+  echo "All experiments completed!"
+
 }
 
 main
