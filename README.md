@@ -1,4 +1,6 @@
-# flexllm
+# FlexLLM (paper 183 @ NSDI 2026) - Artifact Evaluation
+
+Paper PDF: [nsdi26spring-paper183.pdf](./nsdi26spring-paper183.pdf)
 
 ## Hardware setup
 To begin, please spin up a machine with the following characteristics:
