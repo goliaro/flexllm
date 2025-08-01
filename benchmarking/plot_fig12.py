@@ -33,7 +33,7 @@ def process_csv(file_path):
     grouped['finetuning'] = grouped['num_finetuning_fwd_tokens']
     
     # Keep only the final columns we need
-    final_df = grouped[['time_bin', 'inference', 'finetuning', 'arrivals']]
+    final_df = grouped[['time_bin', 'inference', 'finetuning']]
     
     # Rename time_bin back to timestamp for clarity
     final_df = final_df.rename(columns={'time_bin': 'timestamp'})
