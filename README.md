@@ -1,8 +1,10 @@
-# FlexLLM (paper 183 @ NSDI 2026) - Artifact Evaluation
+# Collie (paper 183 @ NSDI 2026) - Artifact Evaluation
 
 Paper PDF: [nsdi26spring-paper183.pdf](./nsdi26spring-paper183.pdf)
 
-## Hardware setup
+## Getting Started Instructions
+
+### Hardware setup
 To begin, please spin up a machine with the following characteristics:
 - 4 NVIDIA A100-SXM4-80GB GPUs
 - CUDA 12.4
@@ -13,7 +15,7 @@ If you are using AWS, please create a `p4de.24xlarge` instance with the `Deep Le
 
 Once you have started the machine (or we started one for you), please connect to the machine via SSH. 
 
-## Preparation
+### Preparation
 To start, please download the code with `git clone --recursive https://github.com/goliaro/flexllm.git`. Then, follow the steps below to build a Docker container where you will be able to run all experiments.
 
 1. Run `./docker/build_container.sh` to build the container
@@ -21,8 +23,20 @@ To start, please download the code with `git clone --recursive https://github.co
 3. Run `./docker/setup_flexllm.sh` to install all the required libraries and download the Huggingface models in the container. When prompted, please provide your huggingface token to access the following models: `meta-llama/Llama-3.1-8B-Instruct`, `Qwen/Qwen2.5-14B-Instruct`, `Qwen/Qwen2.5-32B-Instruct`. If you do not have a token, we can provide one.
 4. Run `./docker/attach_to_container.sh` to open a new terminal connected to the container. You can run this multiple times if you'd like to connect multiple terminal windows.
 
+### Kick-the-tires instructions
+After running the steps above, connect to the Docker container via `./docker/attach_to_container.sh`. Run `./benchmarking/kickstart.sh` to perform the kick-the-tires test. The script will run a small instance of Collie and of the baselines used in the evaluation, and run some small sanity checks. The script will print "All tests completed successfully" if there are no issues; otherwise it will show any error.
 
-## Running the experiments
+### Teardown
+The teardown step is important to ensure that the next reviewer has access to a clean environment for their evaluation.
+
+- Run `./docker/cleanup_containers.sh` after you are done with the kick-the-tires test to stop and destroy the container and all docker images/data.
+- From the host machine, delete the `flexllm` repo and any other files you have created/downloaded
+
+## Detailed Instructions
+To perform the full artifact evaluation, first follow the steps in the "Getting Started Instructions" above (except the "Teardown") to setup the environment again. Next, continue with the steps below. The experiments are expected to each take several hours (~10h each) to complete.
+
+
+### Running the experiments
 To run all the experiments, launch the commands below one at a time within the Docker container. The commands use `nohup` to ensure that they will keep running if the SSH connection is broken. After launching a command, you can feel free to disconnect and come back later to check the progression. To check the progress (in real-time), you can run `tail -f <output_file>` (replace with `output1.log`, `output2.log` or `output3.log`) from the `/` folder in the container. If you are using a `tmux` terminal, you should avoid using `nohup` and instead use the tmux regular functionalities to run each script and check the output. 
 
 You can tell that each experiment has finished if no additional output is being appended to the output file. In the last few lines, you should also be able to see a message that says: "All experiments completed!" or something similar. Before launching the next experiment, to be safe, please also check that the GPU memory utilization is at 0% (by running `nvidia-smi`).
@@ -37,10 +51,19 @@ Once you are done with all experiments, you can run `./flexllm/benchmarking/cose
 You do not have to rerun with `nohup`, but you can if you prefer.
 
 
-## Parsing and plotting the results
-After all experiments have completed, you should run the `./flexllm/benchmarking/parse_data.py` script to parse all the output data into a single pickle file. This will take about 10mins to complete. The output file will be saved at `./flexllm/benchmarking/output/benchmark_data.pkl`. Note that if that file already exists, you will need to delete it before it can be overwritten. After creating the pickle file, you can run `./flexllm/benchmarking/plot_data.py` to plot the results. The script will produce two plots: `./flexllm/benchmarking/output/external_baselines.pdf` (Fig 10 in the paper) and `./flexllm/benchmarking/output/internal_baselines.pdf` (Fig 11 in the paper).
+### Parsing and plotting the results
 
-## Downloading the plots and results to the host
+#### Figure 10 and Figure 11
+
+After all experiments have completed, you should run the `python ./flexllm/benchmarking/parse_data.py` script to parse all the output data into a single pickle file. This will take about 10mins to complete. The output file will be saved at `./flexllm/benchmarking/output/benchmark_data.pkl`. Note that if that file already exists, you will need to delete it before it can be overwritten. After creating the pickle file, you can run `python ./flexllm/benchmarking/plot_data.py` to plot the results. The script will produce two plots: `./flexllm/benchmarking/output/external_baselines.pdf` (Fig 10 in the paper) and `./flexllm/benchmarking/output/internal_baselines.pdf` (Fig 11 in the paper).
+
+#### Figure 12
+To reproduce Figure 12 from the paper, run `python ./flexllm/benchmarking/plot_fig12.py`. It will save the output file at `./flexllm/benchmarking/output/fig12.pdf`
+
+#### Figure 13
+To reproduce Figure 13 from the paper, run `python ./flexllm/benchmarking/plot_fig13.py`. It will save the output file at `./flexllm/benchmarking/output/fig13.pdf`
+
+### Downloading the plots and results to the host
 To download the plots to the host, `cd` to the desired directory (on the host) where you'd like to save the output, and run the following commands:
 
 ```
@@ -62,10 +85,14 @@ We also recommend that you download the final output results by zipping the cont
 
 You can also use these instructions above to periodically checkpoint the output results before being done with all experiments. If you choose to do so, ensure that you are using different names for your zip archive.
 
-## Teardown
+### Teardown
 ⚠️⚠️⚠️ Make sure to save the plots and/or results before proceeding. The step below cannot be undone. ⚠️⚠️⚠️
 
+The teardown step is important to ensure that the next reviewer has access to a clean environment for their evaluation.
+
 - Run `./docker/cleanup_containers.sh` after you are done with the experiments to stop and destroy the container and all docker images/data.
+- Delete the `flexllm` repo and any other files you have created.
+
 
 ## Troubleshooting
 If you are on AWS and your container cannot find the GPUs (a well-known issue):
