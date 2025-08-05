@@ -368,7 +368,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--max-length", type=int, default=8192, help="Maximum prompt + response length")
     parser.add_argument("-s", "--seed", type=int, default=42, help="Random seed")
     parser.add_argument("-d", "--duration", type=int, default=10, help="Slice duration in minutes")
-    parser.add_argument("-o", "--output_folder", type=str, default="./traces/burstgpt", help="Output folder path")
+    parser.add_argument("-o", "--output_folder", type=str, default="../traces/burstgpt", help="Output folder path")
     parser.add_argument("-q", "--qps", type=float, default=5.0, help="Arrival Rate in req/s")
     args = parser.parse_args()
 

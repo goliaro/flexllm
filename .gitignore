@@ -172,3 +172,7 @@ cython_debug/
 
 *.zip
 Untitled-1.ipynb
+data
+output
+plots
+traces

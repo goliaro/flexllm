@@ -32,7 +32,7 @@ QPS_vals=(
 trace=sharegpt
 
 # Cleanup
-rm -rf ./traces
+rm -rf ../traces
 
 for i in "${!MODEL_NAMES[@]}"; do
   for qps in "${QPS_vals[@]}"; do
@@ -43,5 +43,6 @@ for i in "${!MODEL_NAMES[@]}"; do
   echo "Running finetuning trace generation for model: $model_name"
   python get_t1_dataset.py --model_name "${MODEL_NAMES[$i]}" &
 done
+python ../kickstart/get_kickstart_trace.py &
 
 wait
