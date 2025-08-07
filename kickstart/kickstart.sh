@@ -1,13 +1,14 @@
 #!/bin/bash
 set -e
-set -x
+# set -x
 
 cd "$(dirname "$0")/.."
 ROOT_DIR=$(pwd)
 TRACES_FOLDER="${ROOT_DIR}/traces"
 OUTPUT_FOLDER="${ROOT_DIR}/output/kickstart"
 LLAMA_FACTORY_FOLDER="${ROOT_DIR}/LLaMA-Factory"
-
+rm -rf "$OUTPUT_FOLDER"
+mkdir -p "$OUTPUT_FOLDER"
 #################### Preliminary checks ####################
 
 # Colors for better readability
@@ -74,6 +75,25 @@ if [ "$gpu_count" -lt 4 ]; then
   exit 1
 fi
 
+# Verify that all GPUs are A100s to ensure consistency with the paper
+while IFS= read -r gpu; do
+  if [[ "$gpu" != *"A100"* ]]; then
+    echo -e "${RED}Error: GPU '$gpu' is not an A100. Please ensure all GPUs are NVIDIA A100 models.${NC}"
+    exit 1
+  fi
+done < <(nvidia-smi --query-gpu=name --format=csv,noheader)
+
+# Extra sanity check: Verify that each GPU has at least 80GB (81920 MB) of memory
+for gpu_id in $(nvidia-smi --query-gpu=index --format=csv,noheader); do
+  total_mem=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits -i "$gpu_id")
+  if [ "$total_mem" -lt 81920 ]; then
+    echo -e "${RED}Error: GPU $gpu_id has only ${total_mem} MB of memory. At least 80GB (81920 MB) is required.${NC}"
+    exit 1
+  fi
+done
+
+
+
 # Check that the traces are available
 if [ ! -d $TRACES_FOLDER ]; then
   echo -e "${RED}Error: Traces directory not found. Please run get_traces.sh first.${NC}"
@@ -131,6 +151,14 @@ check_trace_file "$kickstart_trace_file"
 echo -e "${GREEN}✓ All sanity checks passed!${NC}"
 echo ""
 
+check_output_file() {
+  local filepath="$1"
+  if [ ! -f "$filepath" ]; then
+    echo -e "${RED}Error: Expected output file $filepath not found. Check the terminal and the logs (${OUTPUT_FOLDER}/logs) for any errors.${NC}"
+    exit 1
+  fi
+}
+
 #################### Test co-serving ####################
 LOG_FILE="${OUTPUT_FOLDER}/logs/kickstart.log"
 echo -e "${YELLOW}Testing co-serving...${NC}"
@@ -166,6 +194,7 @@ export LEGION_BACKTRACE=1
     --ignore-eos --warmup --log-instance-creation \
     2>&1 > "$LOG_FILE"
 
+check_output_file "${OUTPUT_FOLDER}/output/coserving.json"
 echo -e "${GREEN}✓ Co-serving test passed!${NC}"
 echo ""
 
@@ -190,10 +219,10 @@ wait_for_server() {
 }
 
 kill_gpu_processes() {
-  lsof -t -i:8000 | xargs -r kill -9
-  pgrep python3 | xargs -r kill -9
-  pgrep python | xargs -r kill -9
-  pgrep vllm | xargs -r kill -9
+  lsof -t -i:8000 | xargs -r kill -9 2>/dev/null || true
+  pgrep -u $(whoami) python3 | xargs -r kill -9 2>/dev/null || true
+  pgrep -u $(whoami) python | xargs -r kill -9 2>/dev/null || true
+  pgrep -u $(whoami) vllm | xargs -r kill -9 2>/dev/null || true
 
 
   # wait until GPU memory usage smaller than 1GB
@@ -251,11 +280,23 @@ bash -c "$client_command"
 kill -9 $server_pid
 kill_gpu_processes
 
+check_output_file $result_filename
 echo -e "${GREEN}✓ vLLM test passed!${NC}"
 echo ""
 ##################################################
 
 
 ############### Test LLAMA-Factory ###############
-
+echo -e "${YELLOW}Testing LLAMA-Factory...${NC}"
+cd "${LLAMA_FACTORY_FOLDER}"
+CUDA_VISIBLE_DEVICES=0 llamafactory-cli train examples/flexllm/kickstart.yaml
+mkdir -p ${OUTPUT_FOLDER}/output/llama-factory
+mv ./saves/* ${OUTPUT_FOLDER}/output/llama-factory/
+check_output_file "${OUTPUT_FOLDER}/output/llama-factory/kickstart/lora/sft/train_results.json"
+echo -e "${GREEN}✓ LLAMA-Factory test passed!${NC}"
+echo ""
 ##################################################
+
+# Final message + cleanup
+echo -e "${GREEN}All kickstart tests passed successfully!${NC}"
+echo "You can find the output files in the directory: ${OUTPUT_FOLDER}/output"
