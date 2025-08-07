@@ -117,7 +117,7 @@ def make_plot_b(df_processed, output_folder):
 
 if __name__ == "__main__":
     # cd to directory of this file
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     output_folder = "./output"
     os.makedirs(output_folder, exist_ok=True)

@@ -39,8 +39,8 @@ FT_LOGGING_STEPS=100
 trace=sharegpt
 PEFT_SUPPORT_MODE="COSERVING"
 
-OUTPUT_FOLDER="../../benchmarking/output/e2e/coserving"
-TRACES_FOLDER="../../benchmarking/traces/burstgpt"
+OUTPUT_FOLDER="../../output/e2e/coserving"
+TRACES_FOLDER="../../traces/burstgpt"
 
 # Create directories needed for outputs, logs, and profiling
 mkdir -p "$OUTPUT_FOLDER/output"
@@ -106,7 +106,7 @@ run_experiment() {
     NUM_BWD_LAYERS=${NUM_BWD_LAYERS_vals[$model_index]}
     MODEL_TYPE=${model_types[$model_index]}
     NUM_KV_CACHE_SLOTS=${NUM_KV_CACHE_SLOTS_vals[$model_index]}
-    TRACES_FOLDER_="../../benchmarking/traces/burstgpt/${MODEL_TYPE}"
+    TRACES_FOLDER_="../../traces/burstgpt/${MODEL_TYPE}"
     FINETUNING_DATASET="t1_${MODEL_TYPE}"
     FINETUNING_DATASET_FILE="${TRACES_FOLDER}/../${FINETUNING_DATASET}.json"
 

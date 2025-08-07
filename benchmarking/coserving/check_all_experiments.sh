@@ -113,7 +113,7 @@ echo "========================================================================"
 
 # Check Co-serving experiments
 echo "Checking Co-serving experiments..."
-OUTPUT_FOLDER="../../benchmarking/output/e2e/coserving"
+OUTPUT_FOLDER="../../output/e2e/coserving"
 PEFT_SUPPORT_MODE="COSERVING"
 
 for model_index in $(seq 0 $((${#MODEL_NAMES[@]} - 1))); do
@@ -121,7 +121,7 @@ for model_index in $(seq 0 $((${#MODEL_NAMES[@]} - 1))); do
     MODEL_TYPE=${model_types[$model_index]}
     NUM_BWD_LAYERS=${COSERVING_NUM_BWD_LAYERS_vals[$model_index]}
     NUM_KV_CACHE_SLOTS=${NUM_KV_CACHE_SLOTS_vals[$model_index]}
-    TRACES_FOLDER_="../../benchmarking/traces/burstgpt/${MODEL_TYPE}"
+    TRACES_FOLDER_="../../traces/burstgpt/${MODEL_TYPE}"
     
     for qps_index in $(seq 0 $((${#QPS_vals[@]} - 1))); do
         qps=${QPS_vals[$qps_index]}
@@ -154,7 +154,7 @@ done
 
 # Check Spatial Sharing experiments
 echo "Checking Spatial Sharing experiments..."
-OUTPUT_FOLDER="../../benchmarking/output/e2e/spatial_sharing"
+OUTPUT_FOLDER="../../output/e2e/spatial_sharing"
 PEFT_SUPPORT_MODE="SPATIAL_SHARING_LIMITED"
 
 for model_index in $(seq 0 $((${#MODEL_NAMES[@]} - 1))); do
@@ -162,7 +162,7 @@ for model_index in $(seq 0 $((${#MODEL_NAMES[@]} - 1))); do
     MODEL_TYPE=${model_types[$model_index]}
     NUM_BWD_LAYERS=${SPATIAL_NUM_BWD_LAYERS_vals[$model_index]}
     NUM_KV_CACHE_SLOTS=${NUM_KV_CACHE_SLOTS_vals[$model_index]}
-    TRACES_FOLDER_="../../benchmarking/traces/burstgpt/${MODEL_TYPE}"
+    TRACES_FOLDER_="../../traces/burstgpt/${MODEL_TYPE}"
     
     for qps_index in $(seq 0 $((${#QPS_vals[@]} - 1))); do
         qps=${QPS_vals[$qps_index]}
@@ -199,14 +199,14 @@ PEFT_SUPPORT_MODE="TEMPORAL_SHARING"
 
 for t_idx in $(seq 0 $((${#TEMPORAL_SHARING_FREQUENCIES[@]} - 1))); do
     temporal_sharing_frequency=${TEMPORAL_SHARING_FREQUENCIES[$t_idx]}
-    OUTPUT_FOLDER="../../benchmarking/output/e2e/temporal_sharing/${temporal_sharing_frequency}"
+    OUTPUT_FOLDER="../../output/e2e/temporal_sharing/${temporal_sharing_frequency}"
     
     for model_index in $(seq 0 $((${#MODEL_NAMES[@]} - 1))); do
         MODEL_NAME=${MODEL_NAMES[$model_index]}
         MODEL_TYPE=${model_types[$model_index]}
         NUM_BWD_LAYERS=${TEMPORAL_NUM_BWD_LAYERS_vals[$model_index]}
         NUM_KV_CACHE_SLOTS=${NUM_KV_CACHE_SLOTS_vals[$model_index]}
-        TRACES_FOLDER_="../../benchmarking/traces/burstgpt/${MODEL_TYPE}"
+        TRACES_FOLDER_="../../traces/burstgpt/${MODEL_TYPE}"
         
         for qps_index in $(seq 0 $((${#QPS_vals[@]} - 1))); do
             qps=${QPS_vals[$qps_index]}

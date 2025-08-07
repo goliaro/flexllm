@@ -107,8 +107,8 @@ run_experiment() {
     qps=${QPS_vals[$q_idx]}
 
     # set up folders
-    OUTPUT_FOLDER="../../benchmarking/output/e2e/temporal_sharing/${temporal_sharing_frequency}"
-    TRACES_FOLDER="../../benchmarking/traces/burstgpt/${MODEL_TYPE}"
+    OUTPUT_FOLDER="../../output/e2e/temporal_sharing/${temporal_sharing_frequency}"
+    TRACES_FOLDER="../../traces/burstgpt/${MODEL_TYPE}"
     FINETUNING_DATASET="t1_${MODEL_TYPE}"
     FINETUNING_DATASET_FILE="${TRACES_FOLDER}/../../${FINETUNING_DATASET}.json"
     TRACE_FILE="${TRACES_FOLDER}/${trace}_${MAX_SEQ_LEN}_${qps}_qps.json"
@@ -211,5 +211,5 @@ echo "========================================================================"
 echo "All temporal sharing experiments completed!"
 echo "Total experiments run: $((experiment_num - 1))"
 echo "Total execution time: ${hours}h ${minutes}m ${seconds}s"
-echo "Results can be found in: ../../benchmarking/output/e2e/temporal_sharing/"
+echo "Results can be found in: ../../output/e2e/temporal_sharing/"
 echo "========================================================================"
