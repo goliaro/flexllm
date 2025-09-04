@@ -2,6 +2,7 @@ import json
 import os
 from tqdm import tqdm
 from transformers import pipeline
+import random
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -40,7 +41,7 @@ for prompt in tqdm(prompts, desc="Processing prompts"):
     ]
     outputs = pipe(
         messages,
-        max_new_tokens=100,
+        max_new_tokens=1024,
     )
     response = outputs[0]["generated_text"][-1]["content"]
     
@@ -55,6 +56,12 @@ for prompt in tqdm(prompts, desc="Processing prompts"):
         "response_length": response_length,
         "arrival_time": 0.0,
     })
+
+repeated_results = []
+for entry in results:
+    repeated_results.extend([entry] * 30)
+random.shuffle(repeated_results)
+results = repeated_results
 
 json_contents = {"entries": results}
 # Save the results to a JSON file
