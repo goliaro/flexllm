@@ -2,7 +2,9 @@ set -x
 set -e
 
 # Cd into the LLaMA-Factory main directory
-cd "${BASH_SOURCE[0]%/*}/../../LLaMA-Factory"
+cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
+cd "${SCRIPT_DIR}/../../LLaMA-Factory"
 
 # rm -rf saves
 

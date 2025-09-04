@@ -6,7 +6,9 @@
 set -xe
 
 # Change directory to the script's location relative to the build directory
-cd "${BASH_SOURCE[0]%/*}/../../flexflow-serve/build"
+cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
+cd "${SCRIPT_DIR}/../../flexflow-serve/build"
 
 source ./set_python_envs.sh
 

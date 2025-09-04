@@ -6,7 +6,9 @@
 set -e
 
 # Change to the build directory (same as the other scripts)
-cd "${BASH_SOURCE[0]%/*}/../../flexflow-serve/build"
+cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
+cd "${SCRIPT_DIR}/../../flexflow-serve/build"
 
 # Common parameters (from the original scripts)
 MODEL_NAMES=(

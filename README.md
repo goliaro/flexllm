@@ -24,7 +24,7 @@ To start, please download the code with `git clone --recursive https://github.co
 4. Run `./docker/attach_to_container.sh` to open a new terminal connected to the container. You can run this multiple times if you'd like to connect multiple terminal windows.
 
 ### Kick-the-tires instructions
-After running the steps above, connect to the Docker container via `./docker/attach_to_container.sh`. Run `./benchmarking/kickstart.sh` to perform the kick-the-tires test. The script will run a small instance of Collie and of the baselines used in the evaluation, and run some small sanity checks. The script will print "All tests completed successfully" if there are no issues; otherwise it will show any error.
+After running the steps above, connect to the Docker container via `./docker/attach_to_container.sh`. Run `./kickstart/kickstart.sh` to perform the kick-the-tires test. The script will run a small instance of Collie and of the baselines used in the evaluation, and run some small sanity checks. The script will print "All tests completed successfully" if there are no issues; otherwise it will show any error.
 
 ### Teardown
 The teardown step is important to ensure that the next reviewer has access to a clean environment for their evaluation.
@@ -55,20 +55,20 @@ You do not have to rerun with `nohup`, but you can if you prefer.
 
 #### Figure 10 and Figure 11
 
-After all experiments have completed, you should run the `python ./flexllm/benchmarking/parse_data.py` script to parse all the output data into a single pickle file. This will take about 10mins to complete. The output file will be saved at `./flexllm/benchmarking/output/benchmark_data.pkl`. Note that if that file already exists, you will need to delete it before it can be overwritten. After creating the pickle file, you can run `python ./flexllm/benchmarking/plot_data.py` to plot the results. The script will produce two plots: `./flexllm/benchmarking/output/external_baselines.pdf` (Fig 10 in the paper) and `./flexllm/benchmarking/output/internal_baselines.pdf` (Fig 11 in the paper).
+After all experiments have completed, you should run the `python ./flexllm/benchmarking/parse_data.py` script to parse all the output data into a single pickle file. This will take about 10mins to complete. The output file will be saved at `./flexllm/output/benchmark_data.pkl`. Note that if that file already exists, you will need to delete it before it can be overwritten. After creating the pickle file, you can run `python ./flexllm/benchmarking/plot_data.py` to plot the results. The script will produce two plots: `./flexllm/output/external_baselines.pdf` (Fig 10 in the paper) and `./flexllm/output/internal_baselines.pdf` (Fig 11 in the paper).
 
 #### Figure 12
-To reproduce Figure 12 from the paper, run `python ./flexllm/benchmarking/plot_fig12.py`. It will save the output file at `./flexllm/benchmarking/output/fig12.pdf`
+To reproduce Figure 12 from the paper, run `python ./flexllm/benchmarking/plot_fig12.py`. It will save the output file at `./flexllm/output/fig12.pdf`
 
 #### Figure 13
-To reproduce Figure 13 from the paper, run `python ./flexllm/benchmarking/plot_fig13.py`. It will save the output file at `./flexllm/benchmarking/output/fig13.pdf`
+To reproduce Figure 13 from the paper, run `python ./flexllm/benchmarking/plot_fig13.py`. It will save the output file at `./flexllm/output/fig13.pdf`
 
 ### Downloading the plots and results to the host
 To download the plots to the host, `cd` to the desired directory (on the host) where you'd like to save the output, and run the following commands:
 
 ```
-docker cp <container id>:/flexllm/benchmarking/output/external_baselines.pdf ./
-docker cp <container id>:/flexllm/benchmarking/output/internal_baselines.pdf ./
+docker cp <container id>:/flexllm/output/external_baselines.pdf ./
+docker cp <container id>:/flexllm/output/internal_baselines.pdf ./
 ```
 
 Replace <container id> with the ID of your docker container. You can obtain this ID by running `docker ps`. The output will look similar to this (in the example below, the container id is `0cbc018ce9e5`)
@@ -80,7 +80,7 @@ CONTAINER ID   IMAGE                                   COMMAND            CREATE
 
 We also recommend that you download the final output results by zipping the contents of the output folder, and downloading to the host in a similar fashion:
 
-- On the docker machine, run: `zip -r output_results.zip ./flexllm/benchmarking/output`
+- On the docker machine, run: `zip -r output_results.zip ./flexllm/output`
 - On the host machine, run: `docker cp <container id>:/output_results.zip ./`
 
 You can also use these instructions above to periodically checkpoint the output results before being done with all experiments. If you choose to do so, ensure that you are using different names for your zip archive.

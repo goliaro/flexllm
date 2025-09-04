@@ -4,7 +4,8 @@ set -x
 set -o pipefail
 
 # Cd into directory holding this script
-cd "${BASH_SOURCE[0]%/*}"
+cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
 
 VLLM_V1=1
 EAGER_MODE=true

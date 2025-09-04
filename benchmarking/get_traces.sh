@@ -3,7 +3,8 @@ set -x
 set -e
 
 # Cd into directory holding this script
-cd "${BASH_SOURCE[0]%/*}"
+cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
 
 MODEL_NAMES=(
   "meta-llama/Llama-3.1-8B-Instruct"
