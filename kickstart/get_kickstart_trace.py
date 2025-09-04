@@ -60,6 +60,7 @@ for prompt in tqdm(prompts, desc="Processing prompts"):
 repeated_results = []
 for entry in results:
     repeated_results.extend([entry] * 30)
+random.seed(42)
 random.shuffle(repeated_results)
 results = repeated_results
 
