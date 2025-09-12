@@ -4,7 +4,10 @@ OPTIME Log Parser
 
 This script reads the kickstart.log file and aggregates OPTIME entries.
 For layer operations (layers.N.*), it groups them by the operation name
-without the layer number.
+without the layer number. For each operation type, it displays:
+- Total time across all occurrences
+- Number of occurrences (count)
+- Average time per occurrence
 """
 
 import re
@@ -19,13 +22,13 @@ def parse_optime_log(log_file_path):
         log_file_path (str): Path to the log file
         
     Returns:
-        dict: Dictionary with operation names as keys and total times as values
+        dict: Dictionary with operation names as keys and {'total_time': float, 'count': int} as values
     """
     # Pattern to match OPTIME lines: OPTIME[<OP_NAME>]= <TIME> ms
     optime_pattern = r'OPTIME\[([^\]]+)\]=\s*([0-9.]+)\s*ms'
     
-    # Dictionary to store aggregated times
-    op_times = defaultdict(float)
+    # Dictionary to store aggregated times and counts
+    op_stats = defaultdict(lambda: {'total_time': 0.0, 'count': 0})
     
     try:
         with open(log_file_path, 'r') as file:
@@ -54,8 +57,9 @@ def parse_optime_log(log_file_path):
                         # Keep the original name for non-layer operations
                         aggregated_name = op_name
                     
-                    # Add to the total time for this operation
-                    op_times[aggregated_name] += time_value
+                    # Add to the total time and count for this operation
+                    op_stats[aggregated_name]['total_time'] += time_value
+                    op_stats[aggregated_name]['count'] += 1
                 else:
                     print(f"Warning: Line {line_num} starts with OPTIME but doesn't match expected format: {line}")
                     
@@ -66,37 +70,43 @@ def parse_optime_log(log_file_path):
         print(f"Error reading log file: {e}")
         return {}
     
-    return dict(op_times)
+    return dict(op_stats)
 
-def print_results(op_times):
+def print_results(op_stats):
     """
     Print the aggregated results in a formatted way.
     
     Args:
-        op_times (dict): Dictionary of operation times
+        op_stats (dict): Dictionary of operation statistics
     """
-    if not op_times:
+    if not op_stats:
         print("No OPTIME entries found in the log file.")
         return
     
-    print(f"{'Operation Name':<50} {'Total Time (ms)':<15} {'Count':<10}")
-    print("-" * 75)
+    print(f"{'Operation Name':<50} {'Total Time (ms)':<15} {'Count':<10} {'Avg Time (μs)':<15}")
+    print("-" * 100)
     
     # Sort by total time (descending)
-    sorted_ops = sorted(op_times.items(), key=lambda x: x[1], reverse=True)
+    sorted_ops = sorted(op_stats.items(), key=lambda x: x[1]['total_time'], reverse=True)
     
     total_time = 0
-    for op_name, total_ms in sorted_ops:
-        print(f"{op_name:<50} {total_ms:<15.6f}")
+    total_count = 0
+    for op_name, stats in sorted_ops:
+        total_ms = stats['total_time']
+        count = stats['count']
+        avg_us = (total_ms * 1000) / count if count > 0 else 0  # Convert ms to μs
+        print(f"{op_name:<50} {total_ms:<15.3f} {count:<10} {avg_us:<15.3f}")
         total_time += total_ms
+        total_count += count
     
-    print("-" * 75)
-    print(f"{'TOTAL':<50} {total_time:<15.6f}")
+    print("-" * 100)
+    overall_avg_us = (total_time * 1000) / total_count if total_count > 0 else 0  # Convert ms to μs
+    print(f"{'TOTAL':<50} {total_time:<15.3f} {total_count:<10} {overall_avg_us:<15.3f}")
 
 def main():
     """Main function to run the OPTIME log parser."""
     # Path to the log file
-    log_file_path = "/flexllm/output/kickstart/logs/kickstart.log"
+    log_file_path = "/pscratch/sd/g/goliaro/flexllm/output/kickstart/logs/kickstart.log"
     
     print("OPTIME Log Parser")
     print("=" * 50)
@@ -104,10 +114,10 @@ def main():
     print()
     
     # Parse the log file
-    op_times = parse_optime_log(log_file_path)
+    op_stats = parse_optime_log(log_file_path)
     
     # Print results
-    print_results(op_times)
+    print_results(op_stats)
 
 if __name__ == "__main__":
     main()
