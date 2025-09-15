@@ -84,13 +84,13 @@ while IFS= read -r gpu; do
 done < <(nvidia-smi --query-gpu=name --format=csv,noheader)
 
 # Extra sanity check: Verify that each GPU has at least 80GB (81920 MB) of memory
-for gpu_id in $(nvidia-smi --query-gpu=index --format=csv,noheader); do
-  total_mem=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits -i "$gpu_id")
-  if [ "$total_mem" -lt 81920 ]; then
-    echo -e "${RED}Error: GPU $gpu_id has only ${total_mem} MB of memory. At least 80GB (81920 MB) is required.${NC}"
-    exit 1
-  fi
-done
+#for gpu_id in $(nvidia-smi --query-gpu=index --format=csv,noheader); do
+#  total_mem=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits -i "$gpu_id")
+#  if [ "$total_mem" -lt 81920 ]; then
+#    echo -e "${RED}Error: GPU $gpu_id has only ${total_mem} MB of memory. At least 80GB (81920 MB) is required.${NC}"
+#    exit 1
+#  fi
+#done
 
 
 
@@ -174,10 +174,10 @@ mkdir -p "$OUTPUT_FOLDER/profiling"
 
 export LEGION_BACKTRACE=1
 ./inference/flexllm/peft_train \
-    -ll:cpu 16 -ll:gpu 1 -ll:util 16 \
-    -ll:fsize 77000 -ll:zsize 40000 -ll:csize 4096 \
+    -ll:cpu 16 -ll:gpu 2 -ll:util 16 \
+    -ll:fsize 38000 -ll:zsize 40000 -ll:csize 4096 \
     -llm-model meta-llama/Llama-3.1-8B-Instruct --fusion \
-    -tensor-parallelism-degree 1 \
+    -tensor-parallelism-degree 2 \
     -prompt "$kickstart_trace_file" \
     -peft-model kickstart-lora --peft-support-mode COSERVING \
     -finetuning-dataset "${TRACES_FOLDER}/t1_llama.json" \
@@ -190,7 +190,7 @@ export LEGION_BACKTRACE=1
     --max-requests-per-batch 256 \
     --max-tokens-per-batch 256 \
     --max-sequence-length 8192 \
-    --num-kv-cache-slots 70000 \
+    --num-kv-cache-slots 40000 \
     --ignore-eos --warmup --log-instance-creation \
     2>&1 > "$LOG_FILE"
 
@@ -289,7 +289,7 @@ echo ""
 ############### Test LLAMA-Factory ###############
 echo -e "${YELLOW}Testing LLAMA-Factory...${NC}"
 cd "${LLAMA_FACTORY_FOLDER}"
-CUDA_VISIBLE_DEVICES=0 llamafactory-cli train examples/flexllm/kickstart.yaml
+CUDA_VISIBLE_DEVICES=0 DISABLE_VERSION_CHECK=1 llamafactory-cli train examples/flexllm/kickstart.yaml
 mkdir -p ${OUTPUT_FOLDER}/output/llama-factory
 mv ./saves/* ${OUTPUT_FOLDER}/output/llama-factory/
 check_output_file "${OUTPUT_FOLDER}/output/llama-factory/kickstart/lora/sft/train_results.json"
