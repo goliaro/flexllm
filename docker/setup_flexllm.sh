@@ -17,6 +17,7 @@ git clone -b flexllm-aec --recursive https://github.com/goliaro/flexllm.git
 # Install the Python packages that are needed for the experiments
 cd flexllm
 pip install -r requirements.txt
+pip install protobuf==3.20.3 transformers==4.48.0 peft==0.14.0 tensorflow==2.19.1 tf-keras==2.19.0
 
 # Login to Hugging Face, and download the traces for the experiments
 huggingface-cli login --token $HF_TOKEN
