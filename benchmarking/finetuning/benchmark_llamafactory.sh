@@ -2,7 +2,9 @@ set -x
 set -e
 
 # Cd into the LLaMA-Factory main directory
-cd "${BASH_SOURCE[0]%/*}/../../LLaMA-Factory"
+cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
+cd "${SCRIPT_DIR}/../../LLaMA-Factory"
 
 # rm -rf saves
 
@@ -13,8 +15,8 @@ CUDA_VISIBLE_DEVICES=0,1 llamafactory-cli train examples/flexllm/t1_qwen_14B.yam
 # Multi GPU (4) QWEN-2.5 32B
 CUDA_VISIBLE_DEVICES=0,1,2,3 llamafactory-cli train examples/flexllm/t1_qwen_32B.yaml
 
-rm -rf ../benchmarking/output/llama-factory || true
-mkdir -p ../benchmarking/output/llama-factory
-cp -r ./saves/* ../benchmarking/output/llama-factory/
+rm -rf ../output/llama-factory || true
+mkdir -p ../output/llama-factory
+cp -r ./saves/* ../output/llama-factory/
 
 echo "All experiments completed!"

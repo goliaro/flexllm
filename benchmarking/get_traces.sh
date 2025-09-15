@@ -3,7 +3,8 @@ set -x
 set -e
 
 # Cd into directory holding this script
-cd "${BASH_SOURCE[0]%/*}"
+cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
 
 MODEL_NAMES=(
   "meta-llama/Llama-3.1-8B-Instruct"
@@ -32,7 +33,7 @@ QPS_vals=(
 trace=sharegpt
 
 # Cleanup
-rm -rf ./traces
+rm -rf ../traces
 
 for i in "${!MODEL_NAMES[@]}"; do
   for qps in "${QPS_vals[@]}"; do
@@ -43,5 +44,6 @@ for i in "${!MODEL_NAMES[@]}"; do
   echo "Running finetuning trace generation for model: $model_name"
   python get_t1_dataset.py --model_name "${MODEL_NAMES[$i]}" &
 done
+python ../kickstart/get_kickstart_trace.py &
 
 wait

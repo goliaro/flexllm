@@ -8,7 +8,9 @@ set -x
 set -e
 
 # Change directory to the script's location relative to the build directory
-cd "${BASH_SOURCE[0]%/*}/../../flexflow-serve/build"
+cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
+cd "${SCRIPT_DIR}/../../flexflow-serve/build"
 
 # Set up the environment
 source ./set_python_envs.sh
@@ -39,8 +41,8 @@ FT_LOGGING_STEPS=10
 trace=sharegpt
 PEFT_SUPPORT_MODE="SPATIAL_SHARING_LIMITED"
 
-OUTPUT_FOLDER="../../benchmarking/output/e2e/spatial_sharing"
-TRACES_FOLDER="../../benchmarking/traces/burstgpt"
+OUTPUT_FOLDER="../../output/e2e/spatial_sharing"
+TRACES_FOLDER="../../traces/burstgpt"
 
 # Create directories needed for outputs, logs, and profiling
 mkdir -p "$OUTPUT_FOLDER/output"
@@ -105,7 +107,7 @@ run_experiment() {
     NUM_BWD_LAYERS=${NUM_BWD_LAYERS_vals[$model_index]}
     MODEL_TYPE=${model_types[$model_index]}
     NUM_KV_CACHE_SLOTS=${NUM_KV_CACHE_SLOTS_vals[$model_index]}
-    TRACES_FOLDER_="../../benchmarking/traces/burstgpt/${MODEL_TYPE}"
+    TRACES_FOLDER_="../../traces/burstgpt/${MODEL_TYPE}"
     FINETUNING_DATASET="t1_${MODEL_TYPE}"
     FINETUNING_DATASET_FILE="${TRACES_FOLDER}/../${FINETUNING_DATASET}.json"
 

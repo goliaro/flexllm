@@ -78,12 +78,12 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--num_entries", type=int, default=1000, help="Number of entries")
     parser.add_argument("-s", "--seed", type=int, default=0, help="Random seed")
     parser.add_argument("-m", "--max-length", type=int, default=8192, help="Max dataset size")
-    parser.add_argument("-o", "--output_folder", type=str, default="./traces", help="Output file name")
+    parser.add_argument("-o", "--output_folder", type=str, default="../traces", help="Output file name")
     args = parser.parse_args()
 
     # Change directory to that holding this script
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-    os.makedirs("./traces", exist_ok=True)
+    os.makedirs("../traces", exist_ok=True)
 
     main(args.model_name, args.num_entries, args.max_length, args.seed, args.output_folder)

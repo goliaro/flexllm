@@ -158,7 +158,7 @@ def create_plots(data, output_folder=None):
 
 if __name__ == "__main__":
 
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     # Load the parsed data
     data = load_benchmark_data()

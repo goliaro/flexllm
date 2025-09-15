@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 #plt.rcParams['font.serif'] = "Times New Roman"
 #plt.rcParams['font.family'] = "serif"

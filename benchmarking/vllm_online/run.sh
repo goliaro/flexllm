@@ -4,7 +4,8 @@ set -x
 set -o pipefail
 
 # Cd into directory holding this script
-cd "${BASH_SOURCE[0]%/*}"
+cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
 
 VLLM_V1=1
 EAGER_MODE=true
@@ -138,7 +139,7 @@ run_serving_tests() {
     echo "vllm failed to start within the timeout period."
   fi
 
-  mkdir -p ../output/vllm
+  mkdir -p ../../output/vllm
 
   # Construct the result filename and convert it to lowercase.
   result_filename=$(echo "results_${trace}_$( [ "$eager_mode" = true ] && echo "eager_" )$( [ "$vllm_use_v1" = 1 ] && echo "v1_" )${model_name//\//_}_bz_${batch_size}_max_num_batched_tokens_${max_num_batched_tokens}_${qps}_qps_.json" | tr '[:upper:]' '[:lower:]')
@@ -151,7 +152,7 @@ run_serving_tests() {
         --num-prompts ${max_num_requests} \
         --dataset-path ${trace_file} \
         --save-result --save-detailed \
-        --result-dir ../output/vllm \
+        --result-dir ../../output/vllm \
         --result-filename ${result_filename}"
 
   echo "Client command: $client_command"
@@ -178,7 +179,7 @@ main() {
             model_name="${MODEL_NAMES[$i]}"
             tp_degree="${TP_DEGREES[$i]}"
             MODEL_TYPE=${model_types[$i]}
-            trace_file="../traces/burstgpt/${MODEL_TYPE}/${trace}_${MAX_SEQ_LEN}_${qps}_qps.json"
+            trace_file="../../traces/burstgpt/${MODEL_TYPE}/${trace}_${MAX_SEQ_LEN}_${qps}_qps.json"
             # Check if the trace file exists
             if [ ! -f "$trace_file" ]; then
               echo "Error: Trace file $trace_file does not exist!"

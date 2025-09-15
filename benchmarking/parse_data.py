@@ -401,6 +401,6 @@ def parse_benchmark_data():
 
 if __name__ == "__main__":
     print("Parsing benchmark data...")
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     save_path = parse_benchmark_data()
     print(f"Data parsing complete. Saved to: {save_path}")
