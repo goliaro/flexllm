@@ -1,4 +1,4 @@
-# Collie (paper 183 @ NSDI 2026) - Artifact Evaluation
+# FlexLLM (paper 183 @ NSDI 2026) - Artifact Evaluation
 
 Paper PDF: [nsdi26spring-paper183.pdf](./nsdi26spring-paper183.pdf)
 
@@ -16,7 +16,7 @@ If you are using AWS, please create a `p4de.24xlarge` instance with the `Deep Le
 Once you have started the machine (or we started one for you), please connect to the machine via SSH. 
 
 ### Preparation
-To start, please download the code with `git clone --recursive https://github.com/goliaro/flexllm.git`. Then, follow the steps below to build a Docker container where you will be able to run all experiments.
+To start, please download the code with `git clone --recursive https://github.com/FlexLLM/artifact.git`. Then, follow the steps below to build a Docker container where you will be able to run all experiments.
 
 1. Run `./docker/build_container.sh` to build the container
 2. Run `./docker/start_container.sh` to start the container. It will continue running in the background until stopped.
